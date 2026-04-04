@@ -161,12 +161,11 @@ export default function LandingPage({ setActiveView }: LandingPageProps) {
             </div>
           </div>
 
-          {/* Features */}
           <div className="grid md:grid-cols-3 gap-5">
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
-                <div key={feature.id} className="glass-card p-6 hover:border-blue-600/50 transition-all duration-300 group cursor-pointer"
+                <div key={feature.title} className="glass-card p-6 hover:border-blue-600/50 transition-all duration-300 group cursor-pointer"
                   onClick={() => setActiveView(feature.view)}
                 >
                   <div className="flex items-start justify-between mb-4">

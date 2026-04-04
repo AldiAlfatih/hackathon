@@ -1,0 +1,1 @@
+components/LandingPage.tsx(169,35): error TS2339: Property 'id' does not exist on type '{ icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; ... 4 more ...; badge: string; }'.
