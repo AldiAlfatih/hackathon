@@ -1,239 +1,472 @@
 'use client';
 
-import { Shield, TrendingUp, Users, MapPin, Activity, ArrowRight, CheckCircle, AlertTriangle, Zap, Globe } from 'lucide-react';
-import type { ActiveView } from './KawalApp';
-import { statsData } from '@/lib/mockData';
+import { Shield, ArrowRight, Zap, Building2, Server, Database, CheckCircle, AlertTriangle, Users, BookOpen, Utensils, QrCode, X, Camera, Loader2, CheckSquare, Search, ImagePlus, ImageIcon } from 'lucide-react';
+import type { ActiveView, GlobalComplaint } from './KawalApp';
+import { useState, useEffect } from 'react';
 
 interface LandingPageProps {
   setActiveView: (view: ActiveView) => void;
+  addComplaint: (complaint: Omit<GlobalComplaint, 'id' | 'status' | 'tanggal' | 'sekolah'> & { sekolah?: string }) => void;
 }
 
-const features = [
-  {
-    icon: Users,
-    title: 'Portal Vendor',
-    desc: 'Pendaftaran digital dengan OCR pintar dan pelaporan distribusi bergeotag.',
-    view: 'vendor' as ActiveView,
-    color: '#3b82f6',
-    badge: 'Vendor',
-  },
-  {
-    icon: Activity,
-    title: 'Aplikasi Pengawas',
-    desc: 'AI Nutrition Scanner real-time untuk verifikasi standar gizi porsi makanan.',
-    view: 'inspector' as ActiveView,
-    color: '#10b981',
-    badge: 'Pengawas',
-  },
-  {
-    icon: Globe,
-    title: 'Command Center',
-    desc: 'Dashboard analitik dengan Vendor Risk Scoring dan peta distribusi nasional.',
-    view: 'command' as ActiveView,
-    color: '#8b5cf6',
-    badge: 'Regulator',
-  },
-];
+export default function LandingPage({ setActiveView, addComplaint }: LandingPageProps) {
+  const kpis = [
+    { label: 'Total SPPG Aktif', value: '4.821', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { label: 'Sekolah Terlayani', value: '12.450', icon: BookOpen, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { label: 'Porsi Tersalurkan', value: '8.2M+', icon: Utensils, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: 'Kepatuhan Gizi (AI)', value: '94.2%', icon: CheckCircle, color: 'text-teal-600', bg: 'bg-teal-50' },
+    { label: 'Keluhan Diselesaikan', value: '1.205', icon: Shield, color: 'text-sky-600', bg: 'bg-sky-50' },
+  ];
 
-const kontribusi = [
-  { label: 'Target Pertumbuhan Ekonomi', value: '8%', desc: 'Sesuai Asta Cita', color: '#3b82f6' },
-  { label: 'Nilai Ekonomi Harian', value: statsData.nilaiEkonomi, desc: 'Perputaran vendor MBG', color: '#10b981' },
-  { label: 'Siswa Penerima Manfaat', value: '82.540', desc: 'Distribusi hari ini', color: '#f59e0b' },
-  { label: 'Vendor Terverifikasi', value: '2.391', desc: 'Dari 2.847 terdaftar', color: '#8b5cf6' },
-];
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [viewMenuImage, setViewMenuImage] = useState<string | null>(null);
+  const [qrState, setQrState] = useState<'idle' | 'scanning' | 'done'>('idle');
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportData, setReportData] = useState({ kategori: 'Kualitas Makanan', isi: '', fotoBukti: false, severity: 'Medium' as 'Low'|'Medium'|'High' });
 
-export default function LandingPage({ setActiveView }: LandingPageProps) {
+  const handleScanQr = () => {
+    setShowQrModal(true);
+    setQrState('scanning');
+    setShowReportForm(false);
+    setTimeout(() => setQrState('done'), 2000); // Simulate scanning delay
+  };
+
+  const submitReport = () => {
+    if (!reportData.isi.trim()) return;
+    addComplaint({
+      severity: reportData.severity,
+      laporan: reportData.isi,
+      kategori: reportData.kategori,
+      fotoBukti: reportData.fotoBukti,
+      sumber: 'Publik'
+    });
+    alert('Terima kasih! Laporan Anda telah berhasil dikirim ke BGN Command Center.');
+    setShowQrModal(false);
+  };
+
   return (
-    <div className="min-h-screen">
+    <div className="h-full flex flex-col font-sans bg-slate-50 overflow-y-auto">
       {/* Hero Section */}
-      <section className="relative overflow-hidden px-6 py-20 md:py-28">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-10"
-            style={{ background: 'radial-gradient(circle, #1d4ed8, transparent)', filter: 'blur(60px)' }} />
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full opacity-10"
-            style={{ background: 'radial-gradient(circle, #0ea5e9, transparent)', filter: 'blur(50px)' }} />
-        </div>
-
-        <div className="relative max-w-5xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-700/50 text-sm text-blue-300 mb-8"
-            style={{ background: 'rgba(29, 78, 216, 0.1)' }}>
-            <Zap className="w-4 h-4 text-yellow-400" />
-            Prototipe Kompetisi PIDI Digdaya 2026
+      <div id="about" className="relative bg-white border-b border-slate-200 py-20 px-6 overflow-hidden">
+        <div className="absolute inset-0 bg-blue-50/30" style={{
+          backgroundImage: `radial-gradient(var(--color-border-subtle) 1px, transparent 1px)`,
+          backgroundSize: '24px 24px'
+        }}></div>
+        
+        <div className="max-w-5xl mx-auto relative z-10 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-sm font-semibold text-blue-700 mb-8 shadow-sm">
+            <Zap className="w-4 h-4" />
+            PORTAL TRANSPARANSI NASIONAL
           </div>
-
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Platform Digital{' '}
-            <span className="gradient-text">KAWAL-MBG</span>
+          
+          <h1 className="text-4xl md:text-6xl font-heading font-extrabold text-slate-900 mb-6 leading-tight tracking-tight">
+            Pengawasan Publik Terpadu<br/>
+            <span className="text-blue-600">Makan Bergizi Gratis</span>
           </h1>
-
-          <p className="text-xl text-blue-200 max-w-3xl mx-auto mb-8 leading-relaxed">
-            Sistem terintegrasi untuk perizinan, pengawasan, dan transparansi program{' '}
-            <strong className="text-white">Makan Bergizi Gratis</strong> — mendorong akuntabilitas
-            layanan publik dan pertumbuhan ekonomi digital Indonesia.
+          
+          <p className="text-slate-600 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-10">
+            Platform digital terintegrasi untuk pemantauan program Makan Bergizi Gratis (MBG). 
+            Melibatkan kecerdasan buatan untuk verifikasi gizi dan partisipasi publik untuk transparansi pengawasan.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
-            <button
-              onClick={() => setActiveView('command')}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all hover:scale-105"
-              style={{ background: 'linear-gradient(135deg, #1d4ed8, #0ea5e9)' }}
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <button 
+              onClick={() => setActiveView('login')}
+              className="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
             >
-              Masuk Command Center
-              <ArrowRight className="w-4 h-4" />
+              Login Sistem Internal <ArrowRight className="w-5 h-5" />
             </button>
-            <button
-              onClick={() => setActiveView('vendor')}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-blue-300 border border-blue-700/60 hover:bg-blue-900/30 transition-all"
-            >
-              Daftar sebagai Vendor
+            <button onClick={handleScanQr} className="px-8 py-3.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+              <QrCode className="w-5 h-5" /> Cek Status QR Makanan
             </button>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-4">
-            {[
-              { label: 'Total Vendor', value: statsData.totalVendor.toLocaleString('id-ID'), icon: '🏭' },
-              { label: 'Distribusi Hari Ini', value: statsData.distribusiHariIni.toLocaleString('id-ID'), icon: '🍱' },
-              { label: 'Nilai Ekonomi', value: statsData.nilaiEkonomi, icon: '💰' },
-              { label: 'Anomali Terdeteksi', value: statsData.anomaliTerdeteksi.toString(), icon: '⚠️' },
-            ].map((stat) => (
-              <div key={stat.label} className="glass-card p-4 fade-in">
-                <div className="text-2xl mb-1">{stat.icon}</div>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <div className="text-xs text-blue-400 mt-1">{stat.label}</div>
-              </div>
-            ))}
+            <button onClick={() => {
+              const el = document.getElementById('transparansi-anggaran');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }} className="px-8 py-3.5 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+              <Search className="w-5 h-5" /> Transparansi Anggaran
+            </button>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Executive Summary Section */}
-      <section className="px-6 py-12 border-t border-blue-900/30">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-1 h-8 rounded-full bg-blue-500" />
-            <h2 className="text-2xl font-bold text-white">Ringkasan Eksekutif</h2>
+      {/* Public Search Main Section */}
+      <div id="transparansi-anggaran" className="max-w-7xl mx-auto px-6 py-16 w-full">
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+          <div className="w-full p-8 border-b border-slate-100 bg-slate-50 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex-1">
+              <h3 className="text-3xl font-heading font-bold text-slate-900 mb-2">Transparansi Anggaran MBG</h3>
+              <p className="text-slate-600 font-medium">Pencarian terbuka untuk data penyaluran dan anggaran program Makan Bergizi Gratis.</p>
+            </div>
+            
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400" />
+              <input type="text" defaultValue="SDN 01 Cilandak" className="w-full pl-12 pr-4 py-4 text-lg bg-white border border-slate-300 rounded-xl font-bold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 shadow-sm transition-all" placeholder="Cari sekolah..." />
+            </div>
           </div>
-
-          <div className="grid md:grid-cols-2 gap-6 mb-10">
-            {/* Left text */}
-            <div className="glass-card p-6">
-              <div className="flex items-start gap-3 mb-4">
-                <Shield className="w-6 h-6 text-blue-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-white mb-2">Latar Belakang</h3>
-                  <p className="text-blue-200 text-sm leading-relaxed">
-                    Program Makan Bergizi Gratis (MBG) merupakan program prioritas nasional dengan anggaran Rp 71 triliun
-                    yang berdampak langsung pada 82 juta penerima manfaat. Tanpa sistem pengawasan digital yang kuat,
-                    risiko penyimpangan dan inefisiensi dapat menghambat target pertumbuhan ekonomi 8%.
-                  </p>
-                </div>
+          
+          <div className="w-full p-8">
+            
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 mb-8 flex items-center justify-between">
+              <div>
+                <div className="font-bold text-emerald-900 text-2xl">SDN 01 Cilandak</div>
+                <div className="text-sm font-bold text-emerald-700 mt-1">Kel. Cilandak Barat, Jakarta Selatan</div>
               </div>
-              <div className="mt-4 pt-4 border-t border-blue-800/40">
-                <p className="text-sm text-blue-300 leading-relaxed">
-                  <strong className="text-white">KAWAL-MBG</strong> hadir sebagai solusi GovTech yang
-                  mengintegrasikan AI, geospatial tracking, dan fraud detection untuk memastikan setiap
-                  rupiah anggaran tepat sasaran dan teraudit secara real-time.
-                </p>
+              <div className="text-right">
+                <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Sumber Anggaran</div>
+                <div className="inline-block px-3 py-1 bg-emerald-200 text-emerald-800 text-sm font-bold rounded-lg">APBN 2026</div>
               </div>
             </div>
 
-            {/* Right: kontribusi */}
-            <div className="glass-card p-6">
-              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-green-400" />
-                Kontribusi terhadap Target 8%
-              </h3>
-              <div className="space-y-3">
-                {kontribusi.map((item) => (
-                  <div key={item.label} className="flex items-center justify-between gap-3">
+            <div className="space-y-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                  <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Penyedia (SPPG)</div>
+                  <div className="text-base font-bold text-slate-900">CV. Dapur Nusantara</div>
+                </div>
+                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                  <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Porsi Dikirim</div>
+                  <div className="text-2xl font-bold text-blue-700">450 <span className="text-sm font-medium text-slate-500">Porsi</span></div>
+                </div>
+                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                  <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Tarif per Porsi</div>
+                  <div className="text-xl font-bold text-slate-900">Rp 15.000</div>
+                </div>
+                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                  <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Total Anggaran</div>
+                  <div className="text-xl font-bold text-emerald-700">Rp 6.750.000</div>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 rounded-xl border border-slate-200 p-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+                  <div className="text-sm text-slate-800 font-bold uppercase tracking-wider flex items-center gap-2">
+                    <Utensils className="w-4 h-4 text-slate-500" />
+                    Menu Disajikan Hari Ini
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-xs font-bold text-slate-500 bg-white px-3 py-1.5 rounded-lg border border-slate-200">
+                      Waktu Distribusi: 07:15 WIB
+                    </div>
+                    <button onClick={() => setViewMenuImage('Hari Ini')} className="text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 flex items-center gap-1 transition-colors">
+                      <ImageIcon className="w-3.5 h-3.5" /> Lihat Foto Menu
+                    </button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2.5">
+                  {['Nasi Putih', 'Telur Dadar', 'Sayur Sop', 'Buah Pisang', 'Susu UHT'].map(m => (
+                    <span key={m} className="px-4 py-2 bg-white text-blue-700 border border-blue-100 shadow-sm text-sm font-bold rounded-xl">{m}</span>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="pt-2">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-sm text-slate-800 font-bold uppercase tracking-wider">Riwayat Distribusi & Menu</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-500 uppercase">Filter Tanggal:</span>
+                    <input type="date" defaultValue="2026-08-12" className="text-sm font-bold text-slate-700 bg-white border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-blue-500" />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="relative pl-6 border-l-4 border-blue-500 py-2">
+                    <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[9px] top-4 border-2 border-white"></div>
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <div className="text-sm font-bold text-slate-900">11 Ags 2026</div>
+                        <div className="text-xs text-slate-500 font-medium">CV. Dapur Nusantara</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-blue-700">450 Porsi</div>
+                        <div className="text-xs font-bold text-emerald-600">Rp 6.750.000 <span className="text-slate-400 font-normal">(Rp 15.000/porsi)</span></div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-100">
+                      <div className="text-sm text-slate-700">
+                        Nasi, Ayam Goreng, Sayur Bayam, Jeruk, Susu UHT
+                      </div>
+                      <button onClick={() => setViewMenuImage('11 Ags 2026')} className="shrink-0 ml-4 text-[11px] font-bold text-slate-600 hover:text-blue-600 bg-white hover:bg-blue-50 border border-slate-200 px-2.5 py-1 rounded-md flex items-center gap-1 transition-colors">
+                        <ImageIcon className="w-3 h-3" /> Foto
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="relative pl-6 border-l-4 border-slate-300 py-2 opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="absolute w-3 h-3 bg-slate-300 rounded-full -left-[9px] top-4 border-2 border-white"></div>
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <div className="text-sm font-bold text-slate-700">10 Ags 2026</div>
+                        <div className="text-xs text-slate-500 font-medium">CV. Dapur Nusantara</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-slate-600">450 Porsi</div>
+                        <div className="text-xs font-bold text-emerald-600">Rp 6.750.000 <span className="text-slate-400 font-normal">(Rp 15.000/porsi)</span></div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-100">
+                      <div className="text-sm text-slate-600">
+                        Nasi, Ikan Bakar, Tumis Kangkung, Melon, Susu UHT
+                      </div>
+                      <button onClick={() => setViewMenuImage('10 Ags 2026')} className="shrink-0 ml-4 text-[11px] font-bold text-slate-500 hover:text-blue-600 bg-white hover:bg-blue-50 border border-slate-200 px-2.5 py-1 rounded-md flex items-center gap-1 transition-colors">
+                        <ImageIcon className="w-3 h-3" /> Foto
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="relative pl-6 border-l-4 border-slate-300 py-2 opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="absolute w-3 h-3 bg-slate-300 rounded-full -left-[9px] top-4 border-2 border-white"></div>
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <div className="text-sm font-bold text-slate-700">09 Ags 2026</div>
+                        <div className="text-xs text-slate-500 font-medium">CV. Dapur Nusantara</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-slate-600">448 Porsi</div>
+                        <div className="text-xs font-bold text-emerald-600">Rp 6.720.000 <span className="text-slate-400 font-normal">(Rp 15.000/porsi)</span></div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-100">
+                      <div className="text-sm text-slate-600">
+                        Nasi, Daging Teriyaki, Capcay, Apel, Susu UHT
+                      </div>
+                      <button onClick={() => setViewMenuImage('09 Ags 2026')} className="shrink-0 ml-4 text-[11px] font-bold text-slate-500 hover:text-blue-600 bg-white hover:bg-blue-50 border border-slate-200 px-2.5 py-1 rounded-md flex items-center gap-1 transition-colors">
+                        <ImageIcon className="w-3 h-3" /> Foto
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Menu Image Modal */}
+      {viewMenuImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setViewMenuImage(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative" onClick={e => e.stopPropagation()}>
+            <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="font-bold text-slate-900">Bukti Foto Sajian Makanan</h3>
+              <button onClick={() => setViewMenuImage(null)} className="text-slate-400 hover:text-slate-600 p-1 bg-slate-200 hover:bg-slate-300 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="w-full h-64 bg-slate-100 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 mb-4">
+                <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
+                <span className="font-bold text-sm">Foto Menu ({viewMenuImage})</span>
+                <span className="text-xs mt-1">Sumber: Laporan SPPG (Terkonfirmasi BGN)</span>
+              </div>
+              <p className="text-center text-sm font-medium text-slate-500">
+                Menu ini telah diaudit dan dipastikan memenuhi standar gizi (Lauk Protein, Nasi, Sayur, Buah, & Susu).
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* KPI Grid Section */}
+      <div id="stats" className="max-w-7xl mx-auto px-6 py-16 w-full">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl font-heading font-bold text-slate-900 mb-3">Statistik Nasional Terkini</h2>
+          <p className="text-slate-600">Pemantauan real-time performa distribusi dan kualitas gizi di seluruh Indonesia.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          {kpis.map((kpi, idx) => {
+            const Icon = kpi.icon;
+            return (
+              <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${kpi.bg}`}>
+                  <Icon className={`w-6 h-6 ${kpi.color}`} />
+                </div>
+                <div className="text-3xl font-mono font-bold text-slate-900 mb-1">{kpi.value}</div>
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{kpi.label}</div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-12 text-center text-sm text-slate-400 font-bold tracking-widest uppercase">
+          &copy; 2026 KAWAL MBG &bull; BADAN GIZI NASIONAL RI
+        </div>
+      </div>
+
+      {/* QR Scanner Modal */}
+      {showQrModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
+            <button onClick={() => { setShowQrModal(false); setQrState('idle'); setShowReportForm(false); }} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+              <X className="w-6 h-6" />
+            </button>
+            <div className="p-6 border-b border-slate-100">
+              <h3 className="text-lg font-bold text-slate-900">{showReportForm ? 'Lapor Masalah Makanan' : 'Scan QR Makanan'}</h3>
+              <p className="text-sm text-slate-500">{showReportForm ? 'Isi form di bawah untuk melaporkan keluhan ke BGN' : 'Arahkan kamera ke kode QR pada kemasan'}</p>
+            </div>
+            
+            {qrState === 'scanning' ? (
+              <div className="p-12 flex flex-col items-center justify-center bg-slate-50">
+                <div className="relative mb-6">
+                  <div className="w-48 h-48 border-4 border-blue-200 rounded-2xl flex items-center justify-center">
+                    <div className="w-full h-1 bg-blue-500 absolute top-1/2 left-0 -translate-y-1/2 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-[ping_1.5s_ease-in-out_infinite]"></div>
+                    <Camera className="w-12 h-12 text-blue-300 opacity-50" />
+                  </div>
+                </div>
+                <Loader2 className="w-6 h-6 text-blue-600 animate-spin mb-2" />
+                <div className="text-sm font-bold text-slate-600 uppercase tracking-wider">Membaca QR...</div>
+              </div>
+            ) : qrState === 'done' ? (
+              <div className="p-6">
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5 mb-4 text-center">
+                  <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
+                  <div className="font-bold text-emerald-800 text-lg">Makanan Valid & Aman</div>
+                  <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Telah Melewati Verifikasi BGN</div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <div className="text-sm text-blue-200">{item.label}</div>
-                      <div className="text-xs text-blue-500">{item.desc}</div>
+                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Penyedia (SPPG)</div>
+                      <div className="text-sm font-bold text-slate-900">CV. Dapur Nusantara</div>
                     </div>
-                    <div className="text-lg font-bold flex-shrink-0" style={{ color: item.color }}>
-                      {item.value}
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Sekolah Tujuan</div>
+                      <div className="text-sm font-bold text-slate-900">SDN 01 Cilandak</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Waktu Distribusi</div>
+                      <div className="text-sm font-bold text-slate-900">12 Ags 2026, 07:15</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Status Higiene & Halal</div>
+                      <div className="text-sm font-bold text-emerald-600 flex items-center gap-1"><CheckSquare className="w-4 h-4"/> Valid</div>
                     </div>
                   </div>
-                ))}
+                  
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total Porsi Dikirim</div>
+                      <div className="text-sm font-bold text-blue-700">450 Porsi</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Estimasi Anggaran Negara</div>
+                      <div className="text-sm font-bold text-slate-900">Rp 6.750.000 <span className="text-[10px] font-normal text-slate-500">(Rp 15.000/porsi)</span></div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100">
+                    <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Menu Hari Ini (12 Ags 2026)</div>
+                    <div className="flex flex-wrap gap-2">
+                      {['Nasi Putih', 'Telur Dadar', 'Sayur Sop', 'Buah Pisang', 'Susu UHT'].map(m => (
+                        <span key={m} className="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-100 text-xs font-bold rounded-lg">{m}</span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="pt-4 border-t border-slate-100">
+                    <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Riwayat Menu 3 Hari Terakhir</div>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2 text-xs">
+                        <div className="w-16 font-bold text-slate-700 shrink-0">11 Ags:</div>
+                        <div className="text-slate-600">Nasi, Ayam Goreng, Sayur Bayam, Jeruk, Susu</div>
+                      </div>
+                      <div className="flex items-start gap-2 text-xs">
+                        <div className="w-16 font-bold text-slate-700 shrink-0">10 Ags:</div>
+                        <div className="text-slate-600">Nasi, Ikan Bakar, Tumis Kangkung, Melon, Susu</div>
+                      </div>
+                      <div className="flex items-start gap-2 text-xs">
+                        <div className="w-16 font-bold text-slate-700 shrink-0">09 Ags:</div>
+                        <div className="text-slate-600">Nasi, Daging Teriyaki, Capcay, Apel, Susu</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {!showReportForm ? (
+                    <div className="pt-4 border-t border-slate-100">
+                      <button 
+                        onClick={() => setShowReportForm(true)}
+                        className="w-full py-3 bg-red-50 text-red-700 hover:bg-red-100 font-bold rounded-xl transition-colors border border-red-200 flex items-center justify-center gap-2"
+                      >
+                        <AlertTriangle className="w-5 h-5" />
+                        Ada Masalah? Lapor ke BGN
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="pt-4 border-t border-slate-100">
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Kategori Masalah</label>
+                          <select 
+                            value={reportData.kategori}
+                            onChange={e => setReportData(p => ({...p, kategori: e.target.value}))}
+                            className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:border-blue-500 outline-none"
+                          >
+                            <option value="Kualitas Makanan">Kualitas Makanan (Basi, Keras, dll)</option>
+                            <option value="Higiene & Keamanan">Higiene (Ada benda asing)</option>
+                            <option value="Porsi Kurang">Porsi Kurang dari Semestinya</option>
+                            <option value="Lainnya">Lainnya</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Deskripsi Masalah</label>
+                          <textarea 
+                            value={reportData.isi}
+                            onChange={e => setReportData(p => ({...p, isi: e.target.value}))}
+                            className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 h-16 resize-none focus:border-blue-500 outline-none"
+                            placeholder="Ceritakan detail masalahnya..."
+                          />
+                        </div>
+                        <div className="pt-2">
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Lampiran Foto Bukti</label>
+                          <div 
+                            onClick={() => setReportData(p => ({...p, fotoBukti: !p.fotoBukti}))}
+                            className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${reportData.fotoBukti ? 'border-emerald-500 bg-emerald-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-slate-400'}`}
+                          >
+                            {reportData.fotoBukti ? (
+                              <>
+                                <CheckCircle className="w-8 h-8 text-emerald-500 mb-2" />
+                                <div className="text-sm font-bold text-emerald-700">Foto Tersimpan</div>
+                                <div className="text-[10px] text-emerald-600 font-medium">Klik untuk membatalkan</div>
+                              </>
+                            ) : (
+                              <>
+                                <ImagePlus className="w-8 h-8 text-slate-400 mb-2" />
+                                <div className="text-sm font-bold text-slate-700">Ambil dari Kamera / Galeri</div>
+                                <div className="text-[10px] text-slate-500 font-medium text-center mt-1">Upload foto makanan yang bermasalah<br/>Format: JPG/PNG (Maks 5MB)</div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-2 pt-2">
+                          <button onClick={() => setShowReportForm(false)} className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 transition-colors">Batal</button>
+                          <button onClick={submitReport} className="flex-1 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">Kirim Laporan</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
+            ) : null}
+          </div>
+        </div>
+      )}
+
+      {/* Info Section */}
+      <div className="mt-auto bg-white border-t border-slate-200 py-8 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-sm">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 font-semibold text-emerald-600">
+              <Server className="w-4 h-4" />
+              <span>Server Operasional</span>
+            </div>
+            <div className="flex items-center gap-2 font-semibold text-blue-600">
+              <Database className="w-4 h-4" />
+              <span>Data Tersinkronisasi (Delay &lt; 5 Menit)</span>
             </div>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-5">
-            {features.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <div key={feature.title} className="glass-card p-6 hover:border-blue-600/50 transition-all duration-300 group cursor-pointer"
-                  onClick={() => setActiveView(feature.view)}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ background: `${feature.color}22` }}
-                    >
-                      <Icon className="w-5 h-5" style={{ color: feature.color }} />
-                    </div>
-                    <span className="text-xs px-2 py-1 rounded-full font-medium"
-                      style={{ background: `${feature.color}22`, color: feature.color }}
-                    >
-                      {feature.badge}
-                    </span>
-                  </div>
-                  <h3 className="font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-sm text-blue-300 leading-relaxed mb-4">{feature.desc}</p>
-                  <div className="flex items-center gap-1 text-sm font-medium group-hover:gap-2 transition-all"
-                    style={{ color: feature.color }}
-                  >
-                    Akses Portal <ArrowRight className="w-4 h-4" />
-                  </div>
-                </div>
-              );
-            })}
+          <div className="text-slate-500 font-medium">
+            &copy; 2026 Badan Gizi Nasional - Republik Indonesia
           </div>
         </div>
-      </section>
-
-      {/* Keunggulan */}
-      <section className="px-6 py-12 border-t border-blue-900/30">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-1 h-8 rounded-full bg-green-500" />
-            <h2 className="text-2xl font-bold text-white">Keunggulan Platform</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { label: 'Smart OCR Document Processing', desc: 'Ekstraksi data dokumen otomatis dengan akurasi 95%+' },
-              { label: 'AI Nutrition Verification', desc: 'Validasi porsi gizi via computer vision real-time' },
-              { label: 'Vendor Risk Scoring', desc: 'Deteksi anomali otomatis berbasis machine learning' },
-              { label: 'Geospatial Tracking', desc: 'Setiap laporan distribusi terverifikasi koordinat GPS' },
-              { label: 'Fraud Detection Engine', desc: 'Identifikasi harga tidak wajar dan dokumen palsu' },
-              { label: 'Real-time Command Center', desc: 'Dashboard kebijakan nasional berbasis data aktual' },
-            ].map((item) => (
-              <div key={item.label} className="flex items-start gap-3 p-4 rounded-xl border border-blue-900/30 hover:border-blue-700/40 transition-colors"
-                style={{ background: 'rgba(15, 30, 60, 0.4)' }}
-              >
-                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <div className="text-sm font-medium text-white">{item.label}</div>
-                  <div className="text-xs text-blue-400 mt-0.5">{item.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-blue-900/30 px-6 py-8 text-center">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Shield className="w-5 h-5 text-blue-400" />
-          <span className="font-semibold text-white">KAWAL-MBG</span>
-        </div>
-        <p className="text-sm text-blue-500">
-          Prototipe untuk Kompetisi PIDI Digdaya 2026 · Dibangun untuk Layanan Publik Indonesia
-        </p>
-      </footer>
+      </div>
     </div>
   );
 }

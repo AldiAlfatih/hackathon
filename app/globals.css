@@ -1,131 +1,85 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-200: #bfdbfe;
-  --color-brand-300: #93c5fd;
-  --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #1d4ed8;
-  --color-brand-700: #1e3a8a;
-  --color-brand-800: #1e3a5f;
-  --color-brand-900: #0f1f3d;
-  --color-brand-950: #06101e;
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+  --color-blue-950: #172554;
 
-  --color-surface-dark: #0d1b33;
-  --color-surface-card: #112244;
-  --color-surface-glass: rgba(17, 34, 68, 0.7);
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
 
-  --color-anomaly: #ef4444;
-  --color-safe: #10b981;
-  --color-warning: #f59e0b;
-
-  --font-sans: "Inter", sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 @layer base {
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
+  :root {
+    /* Backgrounds: Light theme */
+    --color-bg-base: #f1f5f9;       /* slate-100 - Base app background */
+    --color-bg-surface: #ffffff;    /* white - Card background */
+    --color-bg-raised: #f8fafc;     /* slate-50 - Hover or slight elevation */
+    --color-bg-input: #ffffff;      /* white - Input background */
+    --color-bg-overlay: #f1f5f9;    /* slate-100 - Selection/active state */
 
-  html {
-    font-family: "Inter", sans-serif;
-    scroll-behavior: smooth;
+    /* Sidebar specific */
+    --color-bg-sidebar: #0f172a;    /* slate-900 - Navy sidebar */
+    --color-bg-sidebar-hover: #1e293b; /* slate-800 */
+    --color-bg-sidebar-active: #2563eb; /* blue-600 */
+
+    /* Typography */
+    --color-text-primary: #1e293b;   /* slate-800 - Main text */
+    --color-text-secondary: #475569; /* slate-600 - Muted text */
+    --color-text-muted: #64748b;     /* slate-500 - Extra muted */
+    --color-text-inverse: #ffffff;   /* white - Text on dark backgrounds (e.g., sidebar/buttons) */
+
+    /* Borders */
+    --color-border-subtle: #e2e8f0;  /* slate-200 - Dividers */
+    --color-border-default: #cbd5e1; /* slate-300 - Input borders */
+    --color-border-active: #94a3b8;  /* slate-400 - Hover borders */
+    --color-border-sidebar: #1e293b; /* slate-800 - Sidebar dividers */
   }
 
   body {
-    @apply bg-[#0a1628] text-white min-h-screen;
-    background-image:
-      radial-gradient(ellipse at 20% 50%, rgba(29, 78, 216, 0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 50%);
-  }
-
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #0a1628;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #1d4ed8;
-    border-radius: 3px;
+    background-color: var(--color-bg-base);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
   }
 }
 
+/* Utilities for Data and Layout */
 @layer utilities {
-  .glass-card {
-    background: rgba(17, 34, 68, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    border-radius: 12px;
+  .surface-surface {
+    background-color: var(--color-bg-surface);
   }
-
-  .glow-blue {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  
+  .text-data {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
   }
-
-  .glow-green {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-  }
-
-  .glow-red {
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
-  }
-
-  .gradient-text {
-    background: linear-gradient(135deg, #60a5fa, #a5f3fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .pulse-dot {
-    animation: pulse-animation 2s infinite;
-  }
-
-  @keyframes pulse-animation {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.6; transform: scale(1.2); }
-  }
-
-  .scanner-line {
-    animation: scan 3s linear infinite;
-  }
-
-  @keyframes scan {
-    0% { top: 0%; }
-    100% { top: 100%; }
-  }
-
-  .blink {
-    animation: blink-anim 1.5s ease-in-out infinite;
-  }
-
-  @keyframes blink-anim {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
+  
   .fade-in {
-    animation: fadeIn 0.5s ease-in-out;
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
+}
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .slide-in {
-    animation: slideIn 0.4s ease-out;
-  }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-20px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
