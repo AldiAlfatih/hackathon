@@ -6,7 +6,7 @@ import {
   Filter, Search, ChevronDown, ChevronUp, RefreshCw, Bell,
   MapPin, BarChart3, Activity, Shield, ChevronRight, X,
   Package, DollarSign, Clock, FileText, Database, Server,
-  Lock, Siren, Microscope, Check, XCircle, AlertOctagon, ImageIcon, User
+  Lock, Siren, Microscope, Check, XCircle, AlertOctagon, ImageIcon, User, Building2
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
