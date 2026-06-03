@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { 
   Building2, Calendar, FileText, CheckCircle2, Clock, ChevronRight, Home, TrendingUp,
-  CheckSquare, AlertTriangle, Send, X, Users, ImageIcon, UploadCloud, GraduationCap, Package, MessageSquare
+  CheckSquare, AlertTriangle, Send, X, Users, ImageIcon, UploadCloud, GraduationCap, Package, MessageSquare, AlertCircle
 } from 'lucide-react';
 import type { SekolahSubView, ActiveSubView, GlobalComplaint, GlobalComplaintStatus } from './KawalApp';
 
