@@ -212,7 +212,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView }: SppgPort
 
         {/* LICENSING */}
         {activeSubView === 'licensing' && (
-          <div className="max-w-3xl space-y-6 pb-6">
+          <div className="w-full max-w-5xl space-y-6 pb-6">
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
               <div className="p-5 border-b border-slate-100 bg-slate-50">
                 <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
