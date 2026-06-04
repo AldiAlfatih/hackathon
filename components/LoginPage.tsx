@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, Building2, GraduationCap, BarChart3, Shield, User, Lock } from 'lucide-react';
+import { ArrowRight, Building2, GraduationCap, BarChart3, Shield, User, Lock, Info } from 'lucide-react';
 import type { ActiveView } from './KawalApp';
 import { useState } from 'react';
 
@@ -61,6 +61,18 @@ export default function LoginPage({ setActiveView }: LoginPageProps) {
               </div>
             </div>
 
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-2">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-blue-900 text-sm mb-1">Demo Hackathon</div>
+                  <div className="text-xs text-blue-700">
+                    Silakan pilih <strong>Role</strong> di atas, lalu isi kredensial biarkan default, dan klik tombol <strong>Masuk ke Sistem</strong> untuk melihat antarmuka masing-masing role.
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 ID Kredensial / Email
@@ -68,9 +80,9 @@ export default function LoginPage({ setActiveView }: LoginPageProps) {
               <div className="relative">
                 <input 
                   type="text" 
-                  placeholder="Masukkan ID..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 pl-10 text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                  required
+                  value={role === 'command' ? 'admin@bgn.go.id' : role === 'sppg' ? 'vendor@dapurnusantara.com' : 'kepsek@sdn01cilandak.sch.id'}
+                  readOnly
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 pl-10 text-sm text-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-not-allowed"
                 />
                 <User className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
               </div>
@@ -83,9 +95,9 @@ export default function LoginPage({ setActiveView }: LoginPageProps) {
               <div className="relative">
                 <input 
                   type="password" 
-                  placeholder="••••••••"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 pl-10 text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                  required
+                  value="password123"
+                  readOnly
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 pl-10 text-sm text-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-not-allowed"
                 />
                 <Lock className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
               </div>
