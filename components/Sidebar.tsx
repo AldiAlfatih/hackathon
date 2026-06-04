@@ -3,7 +3,8 @@
 import { 
   BarChart3, Building2, GraduationCap, LogOut, Settings, Shield,
   Activity, FileText, MessageSquare, Package, AlertTriangle,
-  Utensils, Home, Bell, ChevronRight, Users, Banknote, Ghost, ClipboardCheck
+  Utensils, Home, Bell, ChevronRight, Users, Banknote, Ghost, ClipboardCheck,
+  Camera
 } from 'lucide-react';
 import type { ActiveView, ActiveSubView } from './KawalApp';
 
@@ -37,6 +38,7 @@ const SPPG_MENUS: MenuItem[] = [
   { id: 'delivery-history', label: 'Riwayat Pengiriman',    icon: Package,  desc: 'Rekam Jejak Distribusi' },
   { id: 'licensing',        label: 'Perizinan (NIB)',       icon: FileText, desc: 'Verifikasi & Upload Izin' },
   { id: 'nutrition',        label: 'Nutrition Center',      icon: Utensils, desc: 'Laporan Foto & Kepatuhan Gizi' },
+  { id: 'hygiene',          label: 'Live Guard Monitoring', icon: Camera,   desc: 'Hygiene Compliance AI' },
 ];
 
 const SEKOLAH_MENUS: MenuItem[] = [

@@ -6,7 +6,7 @@ import {
   Filter, Search, ChevronDown, ChevronUp, RefreshCw, Bell,
   MapPin, BarChart3, Activity, Shield, ChevronRight, X,
   Package, DollarSign, Clock, FileText, Database, Server,
-  Lock, Siren, Microscope, Check, XCircle, AlertOctagon, ImageIcon, User, Building2, Ghost
+  Lock, Siren, Microscope, Check, XCircle, AlertOctagon, ImageIcon, User, Building2, Ghost, BrainCircuit
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -753,7 +753,16 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                 <div className="space-y-4 mb-6">
                   <div>
                     <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1">
-                      <span className="text-slate-600">Kepatuhan Gizi & Menu</span>
+                      <span className="text-slate-600">Perizinan & Legalitas (15%)</span>
+                      <span className={riskBreakdownVendor.statusVerifikasi === 'Terverifikasi' ? 'text-emerald-600' : 'text-red-600'}>
+                        {riskBreakdownVendor.statusVerifikasi === 'Terverifikasi' ? '100 / 100' : '0 / 100'}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full ${riskBreakdownVendor.statusVerifikasi === 'Terverifikasi' ? 'bg-emerald-500' : 'bg-red-500'}`} style={{ width: riskBreakdownVendor.statusVerifikasi === 'Terverifikasi' ? '100%' : '5%'}}></div></div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1">
+                      <span className="text-slate-600">Kepatuhan Gizi & Menu (25%)</span>
                       <span className={riskBreakdownVendor.risikoSkor >= 80 ? 'text-emerald-600' : 'text-amber-600'}>
                         {Math.min(100, riskBreakdownVendor.risikoSkor + 15)} / 100
                       </span>
@@ -762,7 +771,7 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                   </div>
                   <div>
                     <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1">
-                      <span className="text-slate-600">Ketepatan Waktu Distribusi</span>
+                      <span className="text-slate-600">Standar Higienitas (Live Guard) (20%)</span>
                       <span className={riskBreakdownVendor.risikoSkor >= 80 ? 'text-emerald-600' : 'text-red-600'}>
                         {Math.max(0, riskBreakdownVendor.risikoSkor - 10)} / 100
                       </span>
@@ -771,12 +780,21 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                   </div>
                   <div>
                     <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1">
-                      <span className="text-slate-600">Higiene & Keamanan</span>
-                      <span className={riskBreakdownVendor.risikoSkor >= 80 ? 'text-emerald-600' : 'text-red-600'}>
-                        {Math.max(0, riskBreakdownVendor.risikoSkor - 25)} / 100
+                      <span className="text-slate-600">Ketepatan Waktu Distribusi (10%)</span>
+                      <span className={riskBreakdownVendor.risikoSkor >= 80 ? 'text-emerald-600' : 'text-amber-600'}>
+                        {Math.max(0, riskBreakdownVendor.risikoSkor - 5)} / 100
                       </span>
                     </div>
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full ${riskBreakdownVendor.risikoSkor >= 80 ? 'bg-emerald-500' : 'bg-red-500'}`} style={{ width: `${Math.max(0, riskBreakdownVendor.risikoSkor - 25)}%`}}></div></div>
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full ${riskBreakdownVendor.risikoSkor >= 80 ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${Math.max(0, riskBreakdownVendor.risikoSkor - 5)}%`}}></div></div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1">
+                      <span className="text-slate-600">Sentimen Aduan Masyarakat (30%)</span>
+                      <span className={riskBreakdownVendor.anomali.length === 0 ? 'text-emerald-600' : 'text-red-600'}>
+                        {riskBreakdownVendor.anomali.length === 0 ? '98 / 100' : `${Math.max(10, 80 - riskBreakdownVendor.anomali.length * 15)} / 100`}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full ${riskBreakdownVendor.anomali.length === 0 ? 'bg-emerald-500' : 'bg-red-500'}`} style={{ width: `${riskBreakdownVendor.anomali.length === 0 ? 98 : Math.max(10, 80 - riskBreakdownVendor.anomali.length * 15)}%`}}></div></div>
                   </div>
                 </div>
                 <div className="flex justify-end">
@@ -935,18 +953,34 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
             </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <div className="text-3xl font-mono font-bold text-blue-600">3,45 Juta</div>
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Total Porsi Disalurkan (Harian)</div>
+          <div className="grid grid-cols-4 gap-4">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider flex items-center gap-1 mb-2"><Shield className="w-3 h-3"/> Trust Finance AI</div>
+                <div className="text-xl font-mono font-bold text-slate-900">2 Vendor</div>
+              </div>
+              <div className="text-[10px] text-slate-500 font-medium leading-tight mt-2">Terindikasi anomali <b className="text-red-500">mark-up</b> harga bahan baku harian.</div>
             </div>
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <div className="text-3xl font-mono font-bold text-emerald-600">Rp 51,7 M</div>
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Estimasi Anggaran Terserap</div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="text-[10px] font-bold text-blue-600 uppercase tracking-wider flex items-center gap-1 mb-2"><Activity className="w-3 h-3"/> Price Intelligence</div>
+                <div className="text-xl font-mono font-bold text-slate-900">+12% vs Market</div>
+              </div>
+              <div className="text-[10px] text-slate-500 font-medium leading-tight mt-2">Deviasi rata-rata harga porsi wilayah operasional DKI Jakarta.</div>
             </div>
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <div className="text-3xl font-mono font-bold text-slate-900">Rp 15.000</div>
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Rata-rata Harga per Porsi</div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1 mb-2"><Lock className="w-3 h-3"/> Blockchain Audit Trail</div>
+                <div className="text-xl font-mono font-bold text-slate-900">Active</div>
+              </div>
+              <div className="text-[10px] text-slate-500 font-medium leading-tight mt-2">100% transaksi distribusi & invoice terkunci (immutable).</div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between bg-blue-50/50">
+              <div>
+                <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2">Total Penyerapan Harian</div>
+                <div className="text-2xl font-mono font-bold text-slate-900">Rp 51,7 M</div>
+              </div>
+              <div className="text-[10px] text-slate-500 font-medium leading-tight mt-2">Distribusi <b className="text-blue-600">3,45 Juta</b> porsi ke sekolah hari ini.</div>
             </div>
           </div>
 
@@ -977,7 +1011,16 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                       <td className="py-3.5 px-5 text-slate-500">{v.kota}</td>
                       <td className="py-3.5 px-5 text-xs text-slate-600 max-w-xs leading-relaxed">Nasi Putih, Lauk Protein, Sayuran, Buah Pisang, Susu UHT</td>
                       <td className="py-3.5 px-5 font-mono text-blue-700 font-bold">{v.distribusiHariIni.toLocaleString('id-ID')}</td>
-                      <td className="py-3.5 px-5 font-mono">Rp {v.hargaSatuan.toLocaleString('id-ID')}</td>
+                      <td className="py-3.5 px-5 font-mono">
+                        Rp {v.hargaSatuan.toLocaleString('id-ID')}
+                        {v.hargaSatuan > 15500 && (
+                          <div className="mt-1">
+                            <span className="px-1.5 py-0.5 bg-red-100 text-red-700 border border-red-200 rounded text-[9px] font-bold uppercase flex items-center gap-1 w-max">
+                              <AlertTriangle className="w-2.5 h-2.5"/> Price Anomaly
+                            </span>
+                          </div>
+                        )}
+                      </td>
                       <td className="py-3.5 px-5 font-mono text-emerald-700 font-bold">
                         Rp {(v.distribusiHariIni * v.hargaSatuan).toLocaleString('id-ID')}
                       </td>
@@ -1043,10 +1086,24 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                         <td className="py-3.5 px-5 space-y-1.5">
                           <span className="block w-max px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider border border-slate-200">{r.kategori}</span>
                           <span className={`block w-max px-2 py-0.5 rounded border text-[10px] font-bold uppercase tracking-wider ${r.severity==='High' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>{r.severity}</span>
+                          <div className="flex gap-1 mt-1.5">
+                            <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded text-[9px] font-bold uppercase flex items-center gap-1">
+                              <BrainCircuit className="w-2.5 h-2.5"/> {r.severity === 'High' ? 'Negatif' : 'Netral'}
+                            </span>
+                            <span className="px-1.5 py-0.5 bg-purple-50 text-purple-700 border border-purple-200 rounded text-[9px] font-bold uppercase">
+                              NLP: {r.kategori.includes('Keterlambatan') ? 'Logistik' : 'Mutu'}
+                            </span>
+                          </div>
                         </td>
                         <td className="py-3.5 px-5 text-sm font-medium text-slate-800 max-w-xs">
                           <div className="mb-1">{r.laporan}</div>
-                          {r.fotoBukti && <span className="w-max text-[10px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded border border-blue-100 flex items-center gap-1"><ImageIcon className="w-3 h-3"/> Foto Terlampir</span>}
+                          {r.fotoBukti && <span className="w-max text-[10px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded border border-blue-100 flex items-center gap-1 mb-2"><ImageIcon className="w-3 h-3"/> Foto Terlampir</span>}
+                          {r.severity === 'High' && (
+                            <div className="mt-2 text-[10px] font-medium text-amber-800 bg-amber-50/80 border border-amber-200/60 p-2 rounded-lg flex items-start gap-1.5">
+                              <AlertOctagon className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-500" />
+                              <span><b className="font-bold">AI Warning:</b> Terdeteksi 2 aduan serupa ({r.kategori}) di radius 5km dalam 24 jam terakhir. Potensi insiden massal.</span>
+                            </div>
+                          )}
                         </td>
                         <td className="py-3.5 px-5">
                           {cAction === 'Resolved' ? (
