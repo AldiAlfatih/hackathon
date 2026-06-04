@@ -12,7 +12,19 @@ export interface Vendor {
   lat: number;
   lng: number;
   lastReport: string;
+  // Anti-Ghost fields
+  statusOnboarding: "Aktif" | "Pending Verifikasi" | "Belum Beroperasi" | "Diblokir";
+  tanggalDaftar: string;
+  totalDistribusiAllTime: number;
+  ceklistOnboarding: {
+    nib: boolean;
+    fotoDapur: boolean;
+    gpsLokasi: boolean;
+    rekeningAktif: boolean;
+    kunjunganLapangan: boolean;
+  };
 }
+
 
 export interface FeedItem {
   id: string;
@@ -45,6 +57,10 @@ export const vendors: Vendor[] = [
     lat: -6.25,
     lng: 106.82,
     lastReport: "10 menit lalu",
+    statusOnboarding: "Aktif",
+    tanggalDaftar: "10 Jan 2026",
+    totalDistribusiAllTime: 287400,
+    ceklistOnboarding: { nib: true, fotoDapur: true, gpsLokasi: true, rekeningAktif: true, kunjunganLapangan: true },
   },
   {
     id: "V-002",
@@ -60,6 +76,10 @@ export const vendors: Vendor[] = [
     lat: -6.91,
     lng: 107.61,
     lastReport: "25 menit lalu",
+    statusOnboarding: "Aktif",
+    tanggalDaftar: "15 Jan 2026",
+    totalDistribusiAllTime: 124500,
+    ceklistOnboarding: { nib: true, fotoDapur: true, gpsLokasi: true, rekeningAktif: true, kunjunganLapangan: true },
   },
   {
     id: "V-003",
@@ -75,6 +95,10 @@ export const vendors: Vendor[] = [
     lat: -7.25,
     lng: 112.75,
     lastReport: "2 jam lalu",
+    statusOnboarding: "Aktif",
+    tanggalDaftar: "20 Jan 2026",
+    totalDistribusiAllTime: 198000,
+    ceklistOnboarding: { nib: true, fotoDapur: true, gpsLokasi: false, rekeningAktif: true, kunjunganLapangan: true },
   },
   {
     id: "V-004",
@@ -90,6 +114,10 @@ export const vendors: Vendor[] = [
     lat: 3.59,
     lng: 98.67,
     lastReport: "15 menit lalu",
+    statusOnboarding: "Aktif",
+    tanggalDaftar: "05 Feb 2026",
+    totalDistribusiAllTime: 112000,
+    ceklistOnboarding: { nib: true, fotoDapur: true, gpsLokasi: true, rekeningAktif: true, kunjunganLapangan: true },
   },
   {
     id: "V-005",
@@ -105,6 +133,10 @@ export const vendors: Vendor[] = [
     lat: -7.79,
     lng: 110.36,
     lastReport: "5 menit lalu",
+    statusOnboarding: "Aktif",
+    tanggalDaftar: "12 Feb 2026",
+    totalDistribusiAllTime: 89600,
+    ceklistOnboarding: { nib: true, fotoDapur: true, gpsLokasi: true, rekeningAktif: true, kunjunganLapangan: true },
   },
   {
     id: "V-006",
@@ -120,6 +152,10 @@ export const vendors: Vendor[] = [
     lat: -5.14,
     lng: 119.43,
     lastReport: "3 jam lalu",
+    statusOnboarding: "Pending Verifikasi",
+    tanggalDaftar: "01 Mar 2026",
+    totalDistribusiAllTime: 14200,
+    ceklistOnboarding: { nib: true, fotoDapur: false, gpsLokasi: false, rekeningAktif: true, kunjunganLapangan: false },
   },
   {
     id: "V-007",
@@ -135,6 +171,10 @@ export const vendors: Vendor[] = [
     lat: -0.95,
     lng: 100.35,
     lastReport: "20 menit lalu",
+    statusOnboarding: "Aktif",
+    tanggalDaftar: "18 Jan 2026",
+    totalDistribusiAllTime: 97500,
+    ceklistOnboarding: { nib: true, fotoDapur: true, gpsLokasi: true, rekeningAktif: true, kunjunganLapangan: true },
   },
   {
     id: "V-008",
@@ -150,8 +190,52 @@ export const vendors: Vendor[] = [
     lat: -1.27,
     lng: 116.83,
     lastReport: "1 hari lalu",
+    statusOnboarding: "Diblokir",
+    tanggalDaftar: "10 Mar 2026",
+    totalDistribusiAllTime: 240,
+    ceklistOnboarding: { nib: false, fotoDapur: false, gpsLokasi: false, rekeningAktif: false, kunjunganLapangan: false },
+  },
+  // ⚠️ SPPG GHOIB — Sudah menerima dana tapi tidak pernah beroperasi
+  {
+    id: "V-009",
+    nama: "CV Arjuna Sentosa Pangan",
+    kota: "Semarang",
+    provinsi: "Jawa Tengah",
+    kapasitas: 2200,
+    hargaSatuan: 15000,
+    distribusiHariIni: 0,
+    statusVerifikasi: "Pending",
+    risikoSkor: 8,
+    anomali: ["TIDAK ADA distribusi sejak 45 hari terdaftar", "NIB tidak ditemukan di sistem OSS", "Foto fasilitas tidak diunggah", "Kunjungan lapangan: GAGAL (alamat tidak ditemukan)"],
+    lat: -6.97,
+    lng: 110.42,
+    lastReport: "Tidak pernah lapor",
+    statusOnboarding: "Belum Beroperasi",
+    tanggalDaftar: "20 Mar 2026",
+    totalDistribusiAllTime: 0,
+    ceklistOnboarding: { nib: false, fotoDapur: false, gpsLokasi: false, rekeningAktif: true, kunjunganLapangan: false },
+  },
+  {
+    id: "V-010",
+    nama: "PT Berkah Selalu Catering",
+    kota: "Palembang",
+    provinsi: "Sumatera Selatan",
+    kapasitas: 3000,
+    hargaSatuan: 15000,
+    distribusiHariIni: 0,
+    statusVerifikasi: "Pending",
+    risikoSkor: 5,
+    anomali: ["TIDAK ADA distribusi sejak 60 hari terdaftar", "NIB terdaftar di kota berbeda (Jambi)", "Nomor telepon tidak aktif", "Dana Rp 135 juta sudah tersalurkan ke rekening terdaftar"],
+    lat: -2.99,
+    lng: 104.75,
+    lastReport: "Tidak pernah lapor",
+    statusOnboarding: "Belum Beroperasi",
+    tanggalDaftar: "01 Mar 2026",
+    totalDistribusiAllTime: 0,
+    ceklistOnboarding: { nib: false, fotoDapur: false, gpsLokasi: false, rekeningAktif: true, kunjunganLapangan: false },
   },
 ];
+
 
 export const feedItems: FeedItem[] = [
   {

@@ -24,6 +24,7 @@ export default function TopNavbar({ setActiveView }: TopNavbarProps) {
       <div className="hidden md:flex items-center gap-6 text-sm font-medium text-[var(--color-text-secondary)]">
         <a href="#about" className="hover:text-blue-600 transition-colors">Tentang Program</a>
         <a href="#stats" className="hover:text-blue-600 transition-colors">Statistik Nasional</a>
+        <a href="#cek-sppg" className="text-red-600 hover:text-red-700 transition-colors font-bold flex items-center gap-1.5"><Shield className="w-4 h-4" /> Cek SPPG Publik</a>
         <div className="w-px h-4 bg-[var(--color-border-subtle)]" />
         <button 
           onClick={() => setActiveView('login')}

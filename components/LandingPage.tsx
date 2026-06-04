@@ -1,8 +1,10 @@
 'use client';
 
-import { Shield, ArrowRight, Zap, Building2, Server, Database, CheckCircle, AlertTriangle, Users, BookOpen, Utensils, QrCode, X, Camera, Loader2, CheckSquare, Search, ImagePlus, ImageIcon } from 'lucide-react';
+import { Shield, ArrowRight, Zap, Building2, Server, Database, CheckCircle, AlertTriangle, Users, BookOpen, Utensils, QrCode, X, Camera, Loader2, CheckSquare, Search, ImagePlus, ImageIcon, MapPin, AlertOctagon, Clock } from 'lucide-react';
 import type { ActiveView, GlobalComplaint } from './KawalApp';
 import { useState, useEffect } from 'react';
+import { vendors } from '@/lib/mockData';
+import IndonesiaMap from './IndonesiaMap';
 
 interface LandingPageProps {
   setActiveView: (view: ActiveView) => void;
@@ -23,6 +25,9 @@ export default function LandingPage({ setActiveView, addComplaint }: LandingPage
   const [qrState, setQrState] = useState<'idle' | 'scanning' | 'done'>('idle');
   const [showReportForm, setShowReportForm] = useState(false);
   const [reportData, setReportData] = useState({ kategori: 'Kualitas Makanan', isi: '', fotoBukti: false, severity: 'Medium' as 'Low'|'Medium'|'High' });
+  const [sppgSearch, setSppgSearch] = useState('');
+  const [showSppgReportForm, setShowSppgReportForm] = useState(false);
+  const [sppgReportData, setSppgReportData] = useState({ namaSppg: '', indikasi: 'Tidak Pernah Ada Aktivitas Masak', deskripsi: '', fotoLokasi: false });
 
   const handleScanQr = () => {
     setShowQrModal(true);
@@ -56,7 +61,7 @@ export default function LandingPage({ setActiveView, addComplaint }: LandingPage
         <div className="max-w-5xl mx-auto relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-sm font-semibold text-blue-700 mb-8 shadow-sm">
             <Zap className="w-4 h-4" />
-            PORTAL TRANSPARANSI NASIONAL
+            PROTOTIPE PORTAL TRANSPARANSI NASIONAL (HACKATHON)
           </div>
           
           <h1 className="text-4xl md:text-6xl font-heading font-extrabold text-slate-900 mb-6 leading-tight tracking-tight">
@@ -264,6 +269,80 @@ export default function LandingPage({ setActiveView, addComplaint }: LandingPage
         </div>
       )}
 
+      {/* DIREKTORI SPPG PUBLIK SECTION */}
+      <div id="cek-sppg" className="max-w-7xl mx-auto px-6 py-24 w-full border-t border-slate-200">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-100 text-red-700 text-xs font-bold uppercase tracking-wider mb-4 border border-red-200">
+            <Shield className="w-4 h-4" /> Pengawasan Sosial
+          </div>
+          <h2 className="text-3xl md:text-4xl font-heading font-black text-slate-900 mb-4 tracking-tight">Cek & Laporkan SPPG Fiktif</h2>
+          <p className="text-slate-600 max-w-2xl mx-auto text-lg">Bantu BGN mengawasi penyaluran dana. Jika ada SPPG di wilayah Anda yang terdaftar aktif namun <strong>tidak pernah ada aktivitas fisik</strong>, segera laporkan!</p>
+        </div>
+
+        <div className="max-w-6xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col">
+          <div className="h-[400px] w-full border-b border-slate-200 relative bg-slate-50">
+            <IndonesiaMap />
+            <div className="absolute bottom-4 right-4 z-[999] bg-white/90 backdrop-blur-sm p-3 rounded-xl shadow-lg border border-slate-200 text-xs text-slate-600 font-bold max-w-[200px]">
+              Peta Sebaran Nasional SPPG. Titik merah menandakan SPPG dengan indikasi anomali.
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row">
+            <div className="md:w-1/3 bg-slate-50 p-8 border-r border-slate-200">
+              <h3 className="font-bold text-slate-900 mb-2">Cari SPPG</h3>
+              <p className="text-sm text-slate-500 mb-6">Cari berdasarkan nama vendor, kota, atau provinsi tempat tinggal Anda.</p>
+              <div className="relative mb-6">
+                <Search className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input 
+                  type="text" 
+                  placeholder="Cari Kota / Nama SPPG..." 
+                  value={sppgSearch}
+                  onChange={e => setSppgSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-medium text-sm"
+                />
+              </div>
+              <button 
+                onClick={() => setShowSppgReportForm(true)}
+                className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm transition-colors"
+              >
+                <AlertTriangle className="w-4 h-4" /> Form Laporan Warga
+              </button>
+            </div>
+            <div className="md:w-2/3 bg-white p-0">
+              <div className="max-h-[500px] overflow-y-auto divide-y divide-slate-100">
+              {vendors
+                .filter(v => v.nama.toLowerCase().includes(sppgSearch.toLowerCase()) || v.kota.toLowerCase().includes(sppgSearch.toLowerCase()) || v.provinsi.toLowerCase().includes(sppgSearch.toLowerCase()))
+                .map(v => (
+                <div key={v.id} className="p-6 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-slate-900">{v.nama}</h4>
+                    <div className="text-xs font-bold text-slate-500 flex items-center gap-1 mt-1 mb-2">
+                      <MapPin className="w-3.5 h-3.5" /> {v.kota}, {v.provinsi}
+                    </div>
+                    <div className="text-[11px] text-slate-500">Kapasitas: {v.kapasitas.toLocaleString('id-ID')} Porsi/Hari</div>
+                  </div>
+                  <div className="shrink-0 flex flex-col items-end gap-2">
+                    {v.statusOnboarding === 'Aktif' ? (
+                      <span className="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5" /> Beroperasi Aktif
+                      </span>
+                    ) : v.statusOnboarding === 'Pending Verifikasi' ? (
+                      <span className="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" /> Dalam Tinjauan BGN
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                        <AlertOctagon className="w-3.5 h-3.5" /> Indikasi Ghoib
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+
       {/* KPI Grid Section */}
       <div id="stats" className="max-w-7xl mx-auto px-6 py-16 w-full">
         <div className="text-center mb-12">
@@ -289,6 +368,96 @@ export default function LandingPage({ setActiveView, addComplaint }: LandingPage
           &copy; 2026 KAWAL MBG &bull; BADAN GIZI NASIONAL RI
         </div>
       </div>
+
+      {/* SPPG Report Modal */}
+      {showSppgReportForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
+            <button onClick={() => setShowSppgReportForm(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+              <X className="w-6 h-6" />
+            </button>
+            <div className="p-6 border-b border-slate-100 bg-red-50">
+              <div className="flex items-center gap-3 text-red-700 mb-2">
+                <AlertOctagon className="w-6 h-6" />
+                <h3 className="font-heading font-bold text-xl">Lapor Indikasi SPPG Fiktif</h3>
+              </div>
+              <p className="text-sm text-red-600/80">Laporan Anda akan langsung masuk ke Satgas Investigasi BGN pusat secara anonim.</p>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Nama / Alamat SPPG yang Dicurigai</label>
+                <input 
+                  type="text" 
+                  value={sppgReportData.namaSppg}
+                  onChange={e => setSppgReportData(p => ({...p, namaSppg: e.target.value}))}
+                  placeholder="Contoh: CV Dapur Sehat di Jl. Merdeka No. 1"
+                  className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2.5 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Indikasi Pelanggaran</label>
+                <select 
+                  value={sppgReportData.indikasi}
+                  onChange={e => setSppgReportData(p => ({...p, indikasi: e.target.value}))}
+                  className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2.5 focus:border-red-500 outline-none transition-all bg-white"
+                >
+                  <option value="Tidak Pernah Ada Aktivitas Masak">Tidak ada aktivitas memasak sama sekali</option>
+                  <option value="Alamat Palsu / Kosong">Alamat berupa ruko kosong / fiktif</option>
+                  <option value="Dapur Sangat Kecil / Tidak Wajar">Kapasitas dapur terlalu kecil untuk ribuan porsi</option>
+                  <option value="Lainnya">Pelanggaran berat lainnya</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Keterangan Tambahan (Opsional)</label>
+                <textarea 
+                  value={sppgReportData.deskripsi}
+                  onChange={e => setSppgReportData(p => ({...p, deskripsi: e.target.value}))}
+                  className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2.5 h-20 resize-none focus:border-red-500 outline-none transition-all"
+                  placeholder="Ceritakan mengapa Anda curiga..."
+                />
+              </div>
+
+              <div className="pt-2">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Foto Lokasi (Sangat Dianjurkan)</label>
+                <div 
+                  onClick={() => setSppgReportData(p => ({...p, fotoLokasi: !p.fotoLokasi}))}
+                  className={`border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition-colors ${sppgReportData.fotoLokasi ? 'border-emerald-500 bg-emerald-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100'}`}
+                >
+                  {sppgReportData.fotoLokasi ? (
+                    <>
+                      <CheckCircle className="w-8 h-8 text-emerald-500 mb-2" />
+                      <div className="text-sm font-bold text-emerald-700">Bukti Foto Dilampirkan</div>
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="w-8 h-8 text-slate-400 mb-2" />
+                      <div className="text-sm font-bold text-slate-700">Lampirkan Foto Lokasi / Bangunan</div>
+                      <div className="text-xs text-slate-500 text-center mt-1">Sertakan foto ruko kosong atau kondisi lapangan yang mencurigakan</div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-slate-100 flex gap-3 bg-slate-50">
+              <button onClick={() => setShowSppgReportForm(false)} className="flex-1 py-3 bg-white border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors">Batal</button>
+              <button 
+                onClick={() => {
+                  alert('Laporan berhasil dikirim ke Satgas Investigasi BGN secara anonim.');
+                  setShowSppgReportForm(false);
+                  setSppgReportData({ namaSppg: '', indikasi: 'Tidak Pernah Ada Aktivitas Masak', deskripsi: '', fotoLokasi: false });
+                }} 
+                className="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-sm"
+              >
+                Kirim Laporan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* QR Scanner Modal */}
       {showQrModal && (
@@ -463,7 +632,7 @@ export default function LandingPage({ setActiveView, addComplaint }: LandingPage
             </div>
           </div>
           <div className="text-slate-500 font-medium">
-            &copy; 2026 Badan Gizi Nasional - Republik Indonesia
+            &copy; 2026 TEAM KEPENCET EMOT (PIDI DIGDAYA x HACKATHON)
           </div>
         </div>
       </div>

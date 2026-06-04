@@ -3,7 +3,7 @@
 import { 
   BarChart3, Building2, GraduationCap, LogOut, Settings, Shield,
   Activity, FileText, MessageSquare, Package, AlertTriangle,
-  Utensils, Home, Bell, ChevronRight, Users, Banknote
+  Utensils, Home, Bell, ChevronRight, Users, Banknote, Ghost, ClipboardCheck
 } from 'lucide-react';
 import type { ActiveView, ActiveSubView } from './KawalApp';
 
@@ -14,22 +14,32 @@ interface SidebarProps {
   setActiveSubView: (sub: ActiveSubView) => void;
 }
 
-const BGN_MENUS = [
-  { id: 'overview',          label: 'Command Center',         icon: BarChart3,      desc: 'Dashboard & Peta Nasional' },
-  { id: 'risk',              label: 'Risk Monitoring',        icon: AlertTriangle,  desc: 'Anomali & Skor Risiko SPPG' },
-  { id: 'licensing-review',  label: 'Licensing Review',       icon: FileText,       desc: 'Verifikasi Perizinan SPPG' },
-  { id: 'finance',           label: 'Distribusi & Keuangan',  icon: Banknote,       desc: 'Porsi & Anggaran' },
-  { id: 'complaints',        label: 'Complaint Management',   icon: MessageSquare,  desc: 'Manajemen Aduan Nasional' },
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: any;
+  desc: string;
+  badge?: string;
+}
+
+const BGN_MENUS: MenuItem[] = [
+  { id: 'overview',         label: 'Command Center',        icon: BarChart3,      desc: 'Dashboard & Peta Nasional' },
+  { id: 'risk',             label: 'Risk Monitoring',       icon: AlertTriangle,  desc: 'Anomali & Skor Risiko SPPG' },
+  { id: 'ghost-detection',  label: 'SPPG Ghost Detection',  icon: Ghost,          desc: 'Deteksi SPPG Ghoib & Fraud', badge: '2' },
+  { id: 'licensing-review', label: 'Licensing Review',      icon: FileText,       desc: 'Verifikasi Perizinan SPPG' },
+  { id: 'finance',          label: 'Distribusi & Keuangan', icon: Banknote,       desc: 'Porsi & Anggaran' },
+  { id: 'complaints',       label: 'Complaint Management',  icon: MessageSquare,  desc: 'Manajemen Aduan Nasional' },
 ];
 
-const SPPG_MENUS = [
+const SPPG_MENUS: MenuItem[] = [
   { id: 'dashboard',        label: 'Dashboard',             icon: Home,     desc: 'Ringkasan Operasional' },
+  { id: 'onboarding',       label: 'Onboarding & Verifikasi', icon: ClipboardCheck, desc: 'Wajib Sebelum Distribusi', badge: '!' },
   { id: 'delivery-history', label: 'Riwayat Pengiriman',    icon: Package,  desc: 'Rekam Jejak Distribusi' },
   { id: 'licensing',        label: 'Perizinan (NIB)',       icon: FileText, desc: 'Verifikasi & Upload Izin' },
   { id: 'nutrition',        label: 'Nutrition Center',      icon: Utensils, desc: 'Laporan Foto & Kepatuhan Gizi' },
 ];
 
-const SEKOLAH_MENUS = [
+const SEKOLAH_MENUS: MenuItem[] = [
   { id: 'dashboard',    label: 'Dashboard',           icon: Home,           desc: 'Status Harian Sekolah' },
   { id: 'receipt',      label: 'Goods Receipt',       icon: Package,        desc: 'Terima & Verifikasi Porsi' },
   { id: 'student-list', label: 'Data Penerima',       icon: Users,          desc: 'Daftar Siswa & Absensi' },
@@ -100,11 +110,17 @@ export default function Sidebar({ activeView, setActiveView, activeSubView, setA
                   <div className={`font-semibold text-sm leading-tight ${isActive ? 'text-white' : ''}`}>{item.label}</div>
                   <div className={`text-[10px] leading-tight mt-0.5 truncate ${isActive ? 'text-blue-100' : 'text-slate-500 group-hover:text-slate-400'}`}>{item.desc}</div>
                 </div>
-                {isActive && <ChevronRight className="w-3.5 h-3.5 text-blue-200 shrink-0" />}
+                {'badge' in item && item.badge && (
+                  <span className="shrink-0 text-[10px] font-bold bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
+                    {String(item.badge)}
+                  </span>
+                )}
+                {isActive && !('badge' in item && item.badge) && <ChevronRight className="w-3.5 h-3.5 text-blue-200 shrink-0" />}
               </button>
             );
           })}
         </div>
+
       </div>
 
       {/* Bottom Footer Section */}
