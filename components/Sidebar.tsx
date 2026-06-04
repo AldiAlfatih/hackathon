@@ -62,26 +62,26 @@ export default function Sidebar({ activeView, setActiveView, activeSubView, setA
   const RoleIcon = roleIcon;
 
   return (
-    <div className="w-64 h-screen shrink-0 bg-white border-r border-slate-200 flex flex-col font-sans text-slate-800">
+    <div className="w-64 h-screen shrink-0 bg-[var(--color-bg-sidebar)] border-r border-[var(--color-border-sidebar)] flex flex-col font-sans text-[var(--color-text-inverse)]">
       
       {/* Brand Header */}
-      <div className="h-16 flex items-center px-5 border-b border-slate-200">
+      <div className="h-16 flex items-center px-5 border-b border-[var(--color-border-sidebar)]">
         <div className="flex items-center gap-2">
           <img src="/logo-mbg.png" alt="KAWAL-MBG Logo" className="w-7 h-7 object-contain" />
-          <div className="font-heading font-black text-lg tracking-wide text-blue-950">KAWAL-MBG</div>
+          <div className="font-heading font-bold text-lg tracking-wide text-white">KAWAL-MBG</div>
         </div>
       </div>
 
       {/* Role Chip */}
-      <div className="mx-3 mt-4 mb-2 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-          <RoleIcon className="w-4 h-4 text-blue-600" />
+      <div className="mx-3 mt-4 mb-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
+          <RoleIcon className="w-4 h-4 text-blue-300" />
         </div>
         <div className="min-w-0">
-          <div className="text-slate-900 font-bold text-xs truncate leading-tight">
+          <div className="text-white font-bold text-xs truncate leading-tight">
             {activeView === 'command' ? 'Admin BGN' : activeView === 'sppg' ? 'CV. Dapur Nusantara' : 'SDN 01 Cilandak'}
           </div>
-          <div className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">{roleLabel}</div>
+          <div className="text-slate-400 text-[10px] font-medium uppercase tracking-wider">{roleLabel}</div>
         </div>
       </div>
 
@@ -101,14 +101,14 @@ export default function Sidebar({ activeView, setActiveView, activeSubView, setA
                 onClick={() => setActiveSubView(item.id as ActiveSubView)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all text-left group ${
                   isActive 
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' 
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/30' 
+                    : 'text-slate-300 hover:bg-white/8 hover:text-white'
                 }`}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-blue-600'}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`} />
                 <div className="min-w-0 flex-1">
-                  <div className={`font-bold text-sm leading-tight ${isActive ? 'text-white' : ''}`}>{item.label}</div>
-                  <div className={`text-[10px] leading-tight mt-0.5 truncate font-medium ${isActive ? 'text-blue-100' : 'text-slate-500'}`}>{item.desc}</div>
+                  <div className={`font-semibold text-sm leading-tight ${isActive ? 'text-white' : ''}`}>{item.label}</div>
+                  <div className={`text-[10px] leading-tight mt-0.5 truncate ${isActive ? 'text-blue-100' : 'text-slate-500 group-hover:text-slate-400'}`}>{item.desc}</div>
                 </div>
                 {'badge' in item && item.badge && (
                   <span className="shrink-0 text-[10px] font-bold bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
@@ -124,16 +124,16 @@ export default function Sidebar({ activeView, setActiveView, activeSubView, setA
       </div>
 
       {/* Bottom Footer Section */}
-      <div className="p-3 border-t border-slate-200 space-y-1">
-        <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+      <div className="p-3 border-t border-[var(--color-border-sidebar)] space-y-1">
+        <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/8 hover:text-white transition-colors">
           <Settings className="w-4 h-4 text-slate-400" />
           Pengaturan Akun
         </button>
         <button 
           onClick={() => setActiveView('landing')}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-bold text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-4 h-4 opacity-70" />
           Keluar Sistem
         </button>
       </div>
