@@ -175,7 +175,6 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
   const breadcrumb = activeSubView === 'dashboard' ? 'Dashboard'
     : activeSubView === 'licensing' ? 'Perizinan (NIB)'
     : activeSubView === 'delivery-history' ? 'Riwayat Pengiriman'
-    : activeSubView === 'onboarding' ? 'Onboarding & Verifikasi'
     : activeSubView === 'hygiene' ? 'Live Guard Monitoring'
     : activeSubView === 'schools' ? 'Manajemen Sekolah'
     : 'Nutrition Center';
@@ -250,85 +249,6 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                   ))}
                 </tbody>
               </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* --- ONBOARDING VIEW --- */}
-      {activeSubView === 'onboarding' && (
-        <div className="space-y-6 pb-6">
-          <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5 flex items-start gap-4">
-            <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
-              <Lock className="w-5 h-5 text-amber-700" />
-            </div>
-            <div>
-              <div className="font-bold text-amber-800 text-base mb-1">Akses Distribusi Terkunci</div>
-              <div className="text-sm text-amber-700">Untuk mencegah praktik SPPG Fiktif (Ghoib), Anda wajib menyelesaikan proses onboarding verifikasi fisik sebelum dapat menerima dana dan memulai distribusi makanan.</div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-            <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-              <CheckSquare className="w-5 h-5 text-blue-600" /> Checklist Verifikasi Fisik
-            </h2>
-            
-            <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
-              {/* Step 1 */}
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-blue-500 text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                  <FileText className="w-4 h-4" />
-                </div>
-                <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-blue-50 border border-blue-100 p-4 rounded-xl shadow-sm">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-bold text-slate-800 text-sm">Upload Dokumen NIB OSS</h3>
-                    <span className="text-[10px] bg-blue-200 text-blue-800 font-bold px-2 py-0.5 rounded uppercase">Dalam Proses</span>
-                  </div>
-                  <p className="text-xs text-slate-600 mb-3">Sistem kami terhubung dengan OSS untuk verifikasi otomatis.</p>
-                  <button className="px-3 py-1.5 bg-white border border-blue-200 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-colors">
-                    Upload PDF NIB
-                  </button>
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-slate-200 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                  <Camera className="w-4 h-4" />
-                </div>
-                <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white border border-slate-200 p-4 rounded-xl opacity-75">
-                  <h3 className="font-bold text-slate-800 text-sm mb-1">Upload Foto Fasilitas Dapur</h3>
-                  <p className="text-xs text-slate-500 mb-3">Wajib min. 3 foto (depan, dalam, ruang masak) untuk verifikasi kepemilikan fisik.</p>
-                  <button disabled className="px-3 py-1.5 bg-slate-100 text-slate-400 text-xs font-bold rounded-lg cursor-not-allowed">
-                    Terkunci
-                  </button>
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-slate-200 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                  <Navigation className="w-4 h-4" />
-                </div>
-                <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white border border-slate-200 p-4 rounded-xl opacity-75">
-                  <h3 className="font-bold text-slate-800 text-sm mb-1">Verifikasi Geotag & GPS</h3>
-                  <p className="text-xs text-slate-500 mb-3">Sistem akan merekam koordinat Anda saat ini untuk disandingkan dengan alamat NIB.</p>
-                  <button disabled className="px-3 py-1.5 bg-slate-100 text-slate-400 text-xs font-bold rounded-lg cursor-not-allowed flex items-center gap-1">
-                    <MapPin className="w-3 h-3" /> Deteksi Lokasi Terkunci
-                  </button>
-                </div>
-              </div>
-              
-              {/* Step 4 */}
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-slate-200 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
-                <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white border border-slate-200 p-4 rounded-xl opacity-75">
-                  <h3 className="font-bold text-slate-800 text-sm mb-1">Survei Lapangan BGN</h3>
-                  <p className="text-xs text-slate-500">Tahap akhir: Petugas BGN akan datang ke lokasi Anda sebelum akun dinyatakan aktif secara penuh.</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>

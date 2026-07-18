@@ -36,17 +36,10 @@ const BGN_MENUS: MenuItem[] = [
 const SPPG_MENUS: MenuItem[] = [
   { id: 'dashboard',        label: 'Dashboard',             icon: Home,     desc: 'Ringkasan Operasional' },
   { id: 'schools',          label: 'Manajemen Sekolah',     icon: GraduationCap, desc: 'Daftar Sekolah & Siswa' },
-  { id: 'onboarding',       label: 'Onboarding & Verifikasi', icon: ClipboardCheck, desc: 'Wajib Sebelum Distribusi', badge: '!' },
   { id: 'delivery-history', label: 'Riwayat Pengiriman',    icon: Package,  desc: 'Rekam Jejak Distribusi' },
   { id: 'licensing',        label: 'Syarat Izin SPPG',      icon: FileText, desc: 'Dokumen Persyaratan SPPG' },
   { id: 'nutrition',        label: 'Nutrition Center',      icon: Utensils, desc: 'Laporan Foto & Kepatuhan Gizi' },
   { id: 'hygiene',          label: 'Live Guard Monitoring', icon: Camera,   desc: 'Hygiene Compliance AI' },
-  { id: 'dashboard',        label: 'Dashboard SPPG',        icon: Home,           desc: 'Ringkasan & Status Harian' },
-  { id: 'schools',          label: 'Manajemen Sekolah',     icon: Users,          desc: 'Daftar Sekolah Penerima' },
-  { id: 'onboarding',       label: 'Verifikasi Fisik',      icon: ClipboardCheck, desc: 'Laporan Kesiapan Dapur' },
-  { id: 'licensing',        label: 'Syarat Izin SPPG',     icon: FileText,       desc: 'Dokumen Persyaratan SPPG' },
-  { id: 'nutrition',        label: 'Sentra Nutrisi',        icon: Utensils,       desc: 'Menu & Informasi Gizi harian' },
-  { id: 'delivery-history', label: 'Riwayat Distribusi',    icon: Activity,       desc: 'Data Pengiriman Porsi Makanan' },
 ];
 
 const SEKOLAH_MENUS: MenuItem[] = [
