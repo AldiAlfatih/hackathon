@@ -12,7 +12,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar, Legend
 } from 'recharts';
-import { vendors, feedItems, distribusiData, statsData, type Vendor, type FeedItem } from '@/lib/mockData';
+import { feedItems, distribusiData, statsData, type Vendor, type FeedItem } from '@/lib/mockData';
 import IndonesiaMap from './IndonesiaMap';
 
 import type { BgnSubView, ActiveSubView, GlobalComplaint, GlobalComplaintStatus } from './KawalApp';
@@ -25,6 +25,8 @@ interface CommandCenterProps {
   setActiveSubView: (sub: ActiveSubView) => void;
   complaints: GlobalComplaint[];
   updateComplaintStatus: (id: string, status: GlobalComplaintStatus) => void;
+  vendors: Vendor[];
+  setVendors: React.Dispatch<React.SetStateAction<Vendor[]>>;
 }
 
 function RiskBadge({ skor }: { skor: number }) {
@@ -59,7 +61,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export default function CommandCenter({ activeSubView, setActiveSubView, complaints, updateComplaintStatus }: CommandCenterProps) {
+export default function CommandCenter({ activeSubView, setActiveSubView, complaints, updateComplaintStatus, vendors, setVendors }: CommandCenterProps) {
   const [sortField, setSortField] = useState<SortField>('risikoSkor');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [search, setSearch] = useState('');
@@ -813,7 +815,7 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
           <div>
             <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">Licensing Review</h1>
             <p className="text-sm text-slate-500 mt-1">
-              Verifikasi legalitas dan dokumen izin (NIB, Sertifikat Halal, Laik Higiene) dari SPPG. 
+              Verifikasi persyaratan dokumen wajib untuk penerbitan izin SPPG (Akta, NIB, NPWP, Proposal, Logo, Kontak Perwakilan, serta Lokasi/Kesiapan Bangunan). 
               Tekan <strong>Approve</strong> untuk mengesahkan, atau <strong>Tolak</strong> untuk menangguhkan SPPG.
             </p>
           </div>
@@ -840,7 +842,7 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                     <th className="py-3.5 px-5">Entitas SPPG</th>
                     <th className="py-3.5 px-5">Lokasi</th>
                     <th className="py-3.5 px-5">Status Lisensi</th>
-                    <th className="py-3.5 px-5">Dokumen Izin (NIB / Halal)</th>
+                    <th className="py-3.5 px-5">Syarat Dokumen SPPG</th>
                     <th className="py-3.5 px-5">Aksi BGN</th>
                   </tr>
                 </thead>
@@ -866,7 +868,7 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                         </td>
                         <td className="py-3.5 px-5">
                           <button onClick={() => setViewLicenseVendor(v)} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                            <FileText className="w-3.5 h-3.5" /> LIHAT DOKUMEN
+                            <FileText className="w-3.5 h-3.5" /> TINJAU PERSYARATAN
                           </button>
                         </td>
                         <td className="py-3.5 px-5">
@@ -875,13 +877,15 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                               <button
                                 onClick={() => {
                                   setLicenseActions(p => ({...p, [v.id]: 'approved'}));
-                                  showToast(`BERHASIL: ${v.nama} berhasil di-approve. Kontrak aktif.`, 'success');
+                                  setVendors(prev => prev.map(item => item.id === v.id ? { ...item, statusVerifikasi: 'Terverifikasi', statusOnboarding: 'Aktif' } : item));
+                                  showToast(`BERHASIL: ${v.nama} berhasil di-approve. Kontrak aktif. Kredensial login dikirim ke WhatsApp.`, 'success');
                                 }}
                                 className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-emerald-600 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-600 hover:text-white transition-colors"
                               ><Check className="w-3.5 h-3.5" /> Approve</button>
                               <button
                                 onClick={() => {
                                   setLicenseActions(p => ({...p, [v.id]: 'rejected'}));
+                                  setVendors(prev => prev.map(item => item.id === v.id ? { ...item, statusVerifikasi: 'Ditolak', statusOnboarding: 'Diblokir' } : item));
                                   showToast(`DITOLAK: ${v.nama} ditolak. Kontrak dibatalkan dan SPPG dinotifikasi.`, 'danger');
                                 }}
                                 className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-600 hover:text-white transition-colors"
@@ -889,7 +893,10 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                             </div>
                           ) : (
                             <button
-                              onClick={() => setLicenseActions(p => ({...p, [v.id]: null}))}
+                              onClick={() => {
+                                setLicenseActions(p => ({...p, [v.id]: null}));
+                                setVendors(prev => prev.map(item => item.id === v.id ? { ...item, statusVerifikasi: 'Pending', statusOnboarding: 'Pending Verifikasi' } : item));
+                              }}
                               className="text-xs text-slate-400 hover:text-slate-600 underline"
                             >Batalkan</button>
                           )}
@@ -904,32 +911,54 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
           
           {/* License Document Viewer Modal */}
           {viewLicenseVendor && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-              <div className="bg-white w-full max-w-2xl p-6 rounded-xl shadow-2xl relative border border-slate-200">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-white w-full max-w-2xl p-6 rounded-xl shadow-2xl relative border border-slate-200 animate-in zoom-in-95 duration-200">
                 <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900">Peninjauan Dokumen Legal</h3>
+                    <h3 className="text-lg font-bold text-slate-900">Syarat Verifikasi Penerbitan SPPG</h3>
                     <p className="text-sm text-slate-500 font-medium">{viewLicenseVendor.nama} - {viewLicenseVendor.kota}</p>
                   </div>
                   <button onClick={() => setViewLicenseVendor(null)} className="p-2 bg-slate-100 text-slate-500 hover:text-slate-700 hover:bg-slate-200 rounded-lg"><X className="w-5 h-5"/></button>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="border border-slate-200 rounded-lg p-4 bg-slate-50 flex flex-col items-center justify-center h-48 text-center text-slate-400">
-                    <FileText className="w-8 h-8 mb-2 opacity-50" />
-                    <span className="text-xs font-bold uppercase tracking-wider block text-slate-600 mb-1">Surat Izin NIB</span>
-                    <span className="text-[10px]">Telah diverifikasi sistem OSS</span>
-                  </div>
-                  <div className="border border-slate-200 rounded-lg p-4 bg-emerald-50 flex flex-col items-center justify-center h-48 text-center text-emerald-600 border-dashed">
-                    <CheckCircle2 className="w-8 h-8 mb-2 opacity-50" />
-                    <span className="text-xs font-bold uppercase tracking-wider block mb-1">Sertifikat Halal MUI</span>
-                    <span className="text-[10px]">Masa Berlaku: 2026-2030</span>
-                  </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6 max-h-[350px] overflow-y-auto pr-1">
+                  {[
+                    { nama: 'Akta Pendirian Badan Usaha', deskripsi: 'Nomor AHU-019924.AH.01.01', status: 'Terverifikasi (AHU Kemenkumham)', icon: Building2, statusColor: 'emerald' },
+                    { nama: 'Nomor Induk Berusaha (NIB)', deskripsi: 'NIB: 9120004561239', status: 'Valid (Sistem OSS RBA)', icon: FileText, statusColor: 'emerald' },
+                    { nama: 'Nomor Pokok Wajib Pajak (NPWP)', deskripsi: 'NPWP: 01.234.567.8-012.000', status: 'Kring Pajak: Aktif', icon: FileText, statusColor: 'emerald' },
+                    { nama: 'Proposal Kerja Sama', deskripsi: 'Rencana kerja & estimasi kapasitas porsi', status: 'Lengkap & Disetujui', icon: FileText, statusColor: 'emerald' },
+                    { nama: 'Logo Mitra', deskripsi: 'Logo resmi format PNG resolusi tinggi', status: 'Tersedia', icon: ImageIcon, statusColor: 'emerald' },
+                    { nama: 'NIK & Kontak Perwakilan', deskripsi: 'KTP Perwakilan & Kontak Penanggung Jawab', status: 'Tervalidasi Dukcapil', icon: User, statusColor: 'emerald' },
+                    { nama: 'Lokasi & Kesiapan Bangunan', deskripsi: 'Geotagging Dapur: ' + viewLicenseVendor.lat + ', ' + viewLicenseVendor.lng, status: 'Lolos Verifikasi Fisik BGN', icon: MapPin, statusColor: 'emerald', colSpan: true },
+                  ].map((doc, idx) => {
+                    const IconComponent = doc.icon;
+                    return (
+                      <div 
+                        key={idx} 
+                        className={`border border-slate-200 rounded-xl p-3 flex items-start gap-3 bg-slate-50/50 hover:bg-slate-50 transition-colors ${doc.colSpan ? 'md:col-span-2' : ''}`}
+                      >
+                        <div className="p-2 rounded-lg shrink-0 bg-emerald-50 text-emerald-600">
+                          <IconComponent className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-slate-800 text-xs truncate">{doc.nama}</div>
+                          <div className="text-[10px] text-slate-500 font-medium truncate mt-0.5">{doc.deskripsi}</div>
+                          <div className="mt-1.5 flex items-center gap-1">
+                            <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider">{doc.status}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="flex justify-end gap-3">
+
+                <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
                   <button onClick={() => setViewLicenseVendor(null)} className="px-5 py-2 bg-slate-100 text-slate-700 text-sm font-bold rounded-lg hover:bg-slate-200 transition-colors">Tutup Peninjauan</button>
                   <button onClick={() => {
                     setLicenseActions(p => ({...p, [viewLicenseVendor.id]: 'approved'}));
-                    showToast(`BERHASIL: Dokumen ${viewLicenseVendor.nama} disahkan.`, 'success');
+                    setVendors(prev => prev.map(item => item.id === viewLicenseVendor.id ? { ...item, statusVerifikasi: 'Terverifikasi', statusOnboarding: 'Aktif' } : item));
+                    showToast(`BERHASIL: Dokumen ${viewLicenseVendor.nama} disahkan. Akun aktif. Kredensial login dikirim ke WhatsApp.`, 'success');
                     setViewLicenseVendor(null);
                   }} className="px-5 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-colors">Approve Dokumen</button>
                 </div>

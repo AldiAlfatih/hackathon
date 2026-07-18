@@ -6,14 +6,83 @@ import { useState } from 'react';
 
 interface LoginPageProps {
   setActiveView: (view: ActiveView) => void;
+  vendors?: any[];
+  setLoggedInVendor?: (vendor: any) => void;
 }
 
-export default function LoginPage({ setActiveView }: LoginPageProps) {
+export default function LoginPage({ setActiveView, vendors, setLoggedInVendor }: LoginPageProps) {
   const [role, setRole] = useState<'command' | 'sppg' | 'sekolah'>('command');
+  const [email, setEmail] = useState('admin@bgn.go.id');
+  const [password, setPassword] = useState('password123');
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginNotice, setLoginNotice] = useState<string | null>(null);
+
+  const handleRoleChange = (newRole: 'command' | 'sppg' | 'sekolah') => {
+    setRole(newRole);
+    setLoginError(null);
+    setLoginNotice(null);
+    if (newRole === 'command') {
+      setEmail('admin@bgn.go.id');
+    } else if (newRole === 'sppg') {
+      setEmail('vendor@dapurnusantara.com');
+    } else {
+      setEmail('kepsek@sdn01cilandak.sch.id');
+    }
+    setPassword('password123');
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setActiveView(role);
+    setLoginError(null);
+    setLoginNotice(null);
+
+    if (role === 'sppg') {
+      // Check default vendor credentials
+      if (email === 'vendor@dapurnusantara.com' && password === 'password123') {
+        if (setLoggedInVendor) {
+          setLoggedInVendor({
+            id: 'V-001',
+            nama: 'CV. Dapur Nusantara Sejahtera',
+            email: 'vendor@dapurnusantara.com'
+          });
+        }
+        setActiveView('sppg');
+        return;
+      }
+
+      // Check dynamically registered vendors
+      const match = vendors?.find(v => (v as any).email === email);
+      if (match) {
+        if ((match as any).password !== password) {
+          setLoginError('Kata sandi yang Anda masukkan salah.');
+          return;
+        }
+        
+        if (match.statusVerifikasi === 'Pending') {
+          // Allow login but keep status pending
+          if (setLoggedInVendor) {
+            setLoggedInVendor(match);
+          }
+          setActiveView('sppg');
+          return;
+        }
+
+        if (match.statusVerifikasi === 'Ditolak') {
+          setLoginError('Kemitraan Ditolak: Pendaftaran dapur Anda ditolak oleh BGN Pusat karena ketidaksesuaian dokumen.');
+          return;
+        }
+
+        // Active
+        if (setLoggedInVendor) {
+          setLoggedInVendor(match);
+        }
+        setActiveView('sppg');
+      } else {
+        setLoginError('Kredensial login tidak terdaftar di sistem BGN.');
+      }
+    } else {
+      setActiveView(role);
+    }
   };
 
   return (
@@ -41,37 +110,62 @@ export default function LoginPage({ setActiveView }: LoginPageProps) {
                 Pilih Hak Akses (Role)
               </label>
               <div className="grid grid-cols-1 gap-3">
-                <label className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all ${role === 'command' ? 'border-blue-600 bg-blue-50 text-blue-800' : 'border-slate-200 hover:border-slate-300'}`}>
-                  <input type="radio" name="role" checked={role === 'command'} onChange={() => setRole('command')} className="hidden" />
+                <button
+                  type="button"
+                  onClick={() => handleRoleChange('command')}
+                  className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all text-left w-full ${role === 'command' ? 'border-blue-600 bg-blue-50 text-blue-800 font-bold shadow-sm' : 'border-slate-200 hover:border-slate-300 font-medium'}`}
+                >
                   <BarChart3 className={`w-5 h-5 ${role === 'command' ? 'text-blue-600' : 'text-slate-400'}`} />
-                  <span className="font-bold text-sm">BGN Command Center (Regulator)</span>
-                </label>
+                  <span className="text-sm">BGN Command Center (Regulator)</span>
+                </button>
                 
-                <label className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all ${role === 'sppg' ? 'border-blue-600 bg-blue-50 text-blue-800' : 'border-slate-200 hover:border-slate-300'}`}>
-                  <input type="radio" name="role" checked={role === 'sppg'} onChange={() => setRole('sppg')} className="hidden" />
+                <button
+                  type="button"
+                  onClick={() => handleRoleChange('sppg')}
+                  className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all text-left w-full ${role === 'sppg' ? 'border-blue-600 bg-blue-50 text-blue-800 font-bold shadow-sm' : 'border-slate-200 hover:border-slate-300 font-medium'}`}
+                >
                   <Building2 className={`w-5 h-5 ${role === 'sppg' ? 'text-blue-600' : 'text-slate-400'}`} />
-                  <span className="font-bold text-sm">SPPG Portal (Mitra Vendor)</span>
-                </label>
+                  <span className="text-sm">SPPG Portal (Mitra Vendor)</span>
+                </button>
                 
-                <label className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all ${role === 'sekolah' ? 'border-blue-600 bg-blue-50 text-blue-800' : 'border-slate-200 hover:border-slate-300'}`}>
-                  <input type="radio" name="role" checked={role === 'sekolah'} onChange={() => setRole('sekolah')} className="hidden" />
+                <button
+                  type="button"
+                  onClick={() => handleRoleChange('sekolah')}
+                  className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all text-left w-full ${role === 'sekolah' ? 'border-blue-600 bg-blue-50 text-blue-800 font-bold shadow-sm' : 'border-slate-200 hover:border-slate-300 font-medium'}`}
+                >
                   <GraduationCap className={`w-5 h-5 ${role === 'sekolah' ? 'text-blue-600' : 'text-slate-400'}`} />
-                  <span className="font-bold text-sm">School Portal (Penerima)</span>
-                </label>
+                  <span className="text-sm">School Portal (Penerima)</span>
+                </button>
               </div>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-2">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-bold text-blue-900 text-sm mb-1">Demo Hackathon</div>
-                  <div className="text-xs text-blue-700">
-                    Silakan pilih <strong>Role</strong> di atas, lalu isi kredensial biarkan default, dan klik tombol <strong>Masuk ke Sistem</strong> untuk melihat antarmuka masing-masing role.
+            {loginError && (
+              <div className="bg-red-50 border border-red-200 text-red-800 text-xs font-bold p-3 rounded-lg flex items-start gap-2">
+                <Shield className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
+                <span>{loginError}</span>
+              </div>
+            )}
+
+            {loginNotice && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold p-3 rounded-lg flex items-start gap-2">
+                <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+                <span>{loginNotice}</span>
+              </div>
+            )}
+
+            {!loginError && !loginNotice && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-2">
+                <div className="flex items-start gap-3">
+                  <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-bold text-blue-900 text-sm mb-1">Demo Hackathon</div>
+                    <div className="text-xs text-blue-700">
+                      Silakan pilih <strong>Role</strong> di atas, lalu klik tombol <strong>Masuk ke Sistem</strong> untuk melihat antarmuka masing-masing role. Anda juga dapat mengubah ID/email dan password jika diinginkan.
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -80,9 +174,10 @@ export default function LoginPage({ setActiveView }: LoginPageProps) {
               <div className="relative">
                 <input 
                   type="text" 
-                  value={role === 'command' ? 'admin@bgn.go.id' : role === 'sppg' ? 'vendor@dapurnusantara.com' : 'kepsek@sdn01cilandak.sch.id'}
-                  readOnly
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 pl-10 text-sm text-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-not-allowed"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 pl-10 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                  placeholder="Masukkan email..."
                 />
                 <User className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
               </div>
@@ -95,9 +190,10 @@ export default function LoginPage({ setActiveView }: LoginPageProps) {
               <div className="relative">
                 <input 
                   type="password" 
-                  value="password123"
-                  readOnly
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 pl-10 text-sm text-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-not-allowed"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 pl-10 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                  placeholder="Masukkan kata sandi..."
                 />
                 <Lock className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
               </div>

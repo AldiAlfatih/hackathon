@@ -1,6 +1,6 @@
 'use client';
 
-import { Shield, ArrowRight, Zap, Building2, Server, Database, CheckCircle, AlertTriangle, Users, BookOpen, Utensils, QrCode, X, Camera, Loader2, CheckSquare, Search, ImagePlus, ImageIcon, MapPin, AlertOctagon, Clock } from 'lucide-react';
+import { Shield, ArrowRight, Zap, Building2, Server, Database, CheckCircle, AlertTriangle, Users, BookOpen, Utensils, X, Camera, Search, ImageIcon, MapPin, AlertOctagon, Clock } from 'lucide-react';
 import type { ActiveView, GlobalComplaint } from './KawalApp';
 import { useState, useEffect } from 'react';
 import { vendors } from '@/lib/mockData';
@@ -9,9 +9,10 @@ import IndonesiaMap from './IndonesiaMap';
 interface LandingPageProps {
   setActiveView: (view: ActiveView) => void;
   addComplaint: (complaint: Omit<GlobalComplaint, 'id' | 'status' | 'tanggal' | 'sekolah'> & { sekolah?: string }) => void;
+  registerVendor?: (vendor: any) => void;
 }
 
-export default function LandingPage({ setActiveView, addComplaint }: LandingPageProps) {
+export default function LandingPage({ setActiveView, addComplaint, registerVendor }: LandingPageProps) {
   const kpis = [
     { label: 'Total SPPG Aktif', value: '4.821', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50' },
     { label: 'Sekolah Terlayani', value: '12.450', icon: BookOpen, color: 'text-indigo-600', bg: 'bg-indigo-50' },
@@ -20,33 +21,61 @@ export default function LandingPage({ setActiveView, addComplaint }: LandingPage
     { label: 'Keluhan Diselesaikan', value: '1.205', icon: Shield, color: 'text-sky-600', bg: 'bg-sky-50' },
   ];
 
-  const [showQrModal, setShowQrModal] = useState(false);
   const [viewMenuImage, setViewMenuImage] = useState<string | null>(null);
-  const [qrState, setQrState] = useState<'idle' | 'scanning' | 'done'>('idle');
-  const [showReportForm, setShowReportForm] = useState(false);
-  const [reportData, setReportData] = useState({ kategori: 'Kualitas Makanan', isi: '', fotoBukti: false, severity: 'Medium' as 'Low'|'Medium'|'High' });
   const [sppgSearch, setSppgSearch] = useState('');
   const [showSppgReportForm, setShowSppgReportForm] = useState(false);
   const [sppgReportData, setSppgReportData] = useState({ namaSppg: '', indikasi: 'Tidak Pernah Ada Aktivitas Masak', deskripsi: '', fotoLokasi: false });
 
-  const handleScanQr = () => {
-    setShowQrModal(true);
-    setQrState('scanning');
-    setShowReportForm(false);
-    setTimeout(() => setQrState('done'), 2000); // Simulate scanning delay
-  };
+  // Register States
+  const [showRegisterForm, setShowRegisterForm] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [newVendorData, setNewVendorData] = useState({
+    nama: '',
+    direktur: '',
+    email: '',
+    telepon: '',
+    kota: '',
+    provinsi: '',
+    password: '',
+    kapasitas: '3000'
+  });
+  
+  // Checklist / Upload states for 7 required documents
+  const [uploadedFiles, setUploadedFiles] = useState<Record<string, string>>({});
 
-  const submitReport = () => {
-    if (!reportData.isi.trim()) return;
-    addComplaint({
-      severity: reportData.severity,
-      laporan: reportData.isi,
-      kategori: reportData.kategori,
-      fotoBukti: reportData.fotoBukti,
-      sumber: 'Publik'
-    });
-    alert('Terima kasih! Laporan Anda telah berhasil dikirim ke BGN Command Center.');
-    setShowQrModal(false);
+  const handleRegisterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate all 7 documents are uploaded
+    const requiredKeys = ['akta', 'nib', 'npwp', 'proposal', 'logo', 'kontak', 'lokasi'];
+    const allUploaded = requiredKeys.every(key => !!uploadedFiles[key]);
+    if (!allUploaded) {
+      alert('Anda wajib mengunggah ke-7 dokumen persyaratan untuk mendaftar.');
+      return;
+    }
+    
+    let lat = -6.2;
+    let lng = 106.8;
+    if (newVendorData.kota.toLowerCase().includes('bandung')) {
+      lat = -6.91; lng = 107.61;
+    } else if (newVendorData.kota.toLowerCase().includes('surabaya')) {
+      lat = -7.25; lng = 112.75;
+    } else if (newVendorData.kota.toLowerCase().includes('medan')) {
+      lat = 3.59; lng = 98.67;
+    }
+    
+    if (registerVendor) {
+      registerVendor({
+        ...newVendorData,
+        kapasitas: parseInt(newVendorData.kapasitas) || 3000,
+        lat,
+        lng,
+        files: uploadedFiles
+      });
+    }
+    
+    setShowRegisterForm(false);
+    setShowSuccessModal(true);
   };
 
   return (
@@ -81,8 +110,11 @@ export default function LandingPage({ setActiveView, addComplaint }: LandingPage
             >
               Login Sistem Internal <ArrowRight className="w-5 h-5" />
             </button>
-            <button onClick={handleScanQr} className="px-8 py-3.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm">
-              <QrCode className="w-5 h-5" /> Cek Status QR Makanan
+            <button 
+              onClick={() => setShowRegisterForm(true)}
+              className="px-8 py-3.5 bg-slate-900 hover:bg-slate-950 text-white font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+            >
+              <Building2 className="w-5 h-5" /> Daftar Dapur (SPPG) Baru
             </button>
             <button onClick={() => {
               const el = document.getElementById('transparansi-anggaran');
@@ -459,169 +491,175 @@ export default function LandingPage({ setActiveView, addComplaint }: LandingPage
         </div>
       )}
 
-      {/* QR Scanner Modal */}
-      {showQrModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
-            <button onClick={() => { setShowQrModal(false); setQrState('idle'); setShowReportForm(false); }} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+      {/* Public Registration Modal */}
+      {showRegisterForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden relative my-8" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowRegisterForm(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-100 rounded-lg transition-colors">
               <X className="w-6 h-6" />
             </button>
-            <div className="p-6 border-b border-slate-100">
-              <h3 className="text-lg font-bold text-slate-900">{showReportForm ? 'Lapor Masalah Makanan' : 'Scan QR Makanan'}</h3>
-              <p className="text-sm text-slate-500">{showReportForm ? 'Isi form di bawah untuk melaporkan keluhan ke BGN' : 'Arahkan kamera ke kode QR pada kemasan'}</p>
+            
+            <div className="p-6 border-b border-slate-100 bg-slate-50">
+              <div className="flex items-center gap-2.5 text-blue-700 mb-1">
+                <Building2 className="w-6 h-6" />
+                <h3 className="font-heading font-bold text-xl">Pendaftaran Dapur SPPG Baru</h3>
+              </div>
+              <p className="text-sm text-slate-500">Ajukan pendaftaran kemitraan penyedia Makan Bergizi Gratis.</p>
             </div>
             
-            {qrState === 'scanning' ? (
-              <div className="p-12 flex flex-col items-center justify-center bg-slate-50">
-                <div className="relative mb-6">
-                  <div className="w-48 h-48 border-4 border-blue-200 rounded-2xl flex items-center justify-center">
-                    <div className="w-full h-1 bg-blue-500 absolute top-1/2 left-0 -translate-y-1/2 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-[ping_1.5s_ease-in-out_infinite]"></div>
-                    <Camera className="w-12 h-12 text-blue-300 opacity-50" />
-                  </div>
+            <form onSubmit={handleRegisterSubmit} className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1.5">Nama Dapur / Perusahaan</label>
+                  <input 
+                    type="text" required placeholder="Contoh: PT Boga Gizi Sentosa"
+                    value={newVendorData.nama} onChange={e => setNewVendorData(p => ({...p, nama: e.target.value}))}
+                    className="w-full text-sm border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                  />
                 </div>
-                <Loader2 className="w-6 h-6 text-blue-600 animate-spin mb-2" />
-                <div className="text-sm font-bold text-slate-600 uppercase tracking-wider">Membaca QR...</div>
+                <div>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1.5">Nama Direktur / Penanggung Jawab</label>
+                  <input 
+                    type="text" required placeholder="Nama Lengkap Direktur"
+                    value={newVendorData.direktur} onChange={e => setNewVendorData(p => ({...p, direktur: e.target.value}))}
+                    className="w-full text-sm border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                  />
+                </div>
               </div>
-            ) : qrState === 'done' ? (
-              <div className="p-6">
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5 mb-4 text-center">
-                  <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
-                  <div className="font-bold text-emerald-800 text-lg">Makanan Valid & Aman</div>
-                  <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Telah Melewati Verifikasi BGN</div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1.5">Email Dapur (ID Login)</label>
+                  <input 
+                    type="email" required placeholder="contoh@dapurmitra.com"
+                    value={newVendorData.email} onChange={e => setNewVendorData(p => ({...p, email: e.target.value}))}
+                    className="w-full text-sm border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                  />
                 </div>
-                
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Penyedia (SPPG)</div>
-                      <div className="text-sm font-bold text-slate-900">CV. Dapur Nusantara</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Sekolah Tujuan</div>
-                      <div className="text-sm font-bold text-slate-900">SDN 01 Cilandak</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Waktu Distribusi</div>
-                      <div className="text-sm font-bold text-slate-900">12 Ags 2026, 07:15</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Status Higiene & Halal</div>
-                      <div className="text-sm font-bold text-emerald-600 flex items-center gap-1"><CheckSquare className="w-4 h-4"/> Valid</div>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-                    <div>
-                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total Porsi Dikirim</div>
-                      <div className="text-sm font-bold text-blue-700">450 Porsi</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Estimasi Anggaran Negara</div>
-                      <div className="text-sm font-bold text-slate-900">Rp 6.750.000 <span className="text-[10px] font-normal text-slate-500">(Rp 15.000/porsi)</span></div>
-                    </div>
-                  </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1.5">Kata Sandi</label>
+                  <input 
+                    type="password" required placeholder="Minimal 6 karakter"
+                    value={newVendorData.password} onChange={e => setNewVendorData(p => ({...p, password: e.target.value}))}
+                    className="w-full text-sm border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                  />
+                </div>
+              </div>
 
-                  <div className="pt-4 border-t border-slate-100">
-                    <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2 flex items-center gap-1"><Server className="w-3 h-3"/> Blockchain Audit Trail</div>
-                    <div className="bg-slate-100 px-3 py-2 rounded-lg border border-slate-200 flex items-center justify-between">
-                      <div className="font-mono text-[10px] text-slate-600 truncate mr-4">0x7F9c2...4eA9b81D</div>
-                      <span className="text-[9px] bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded font-bold uppercase whitespace-nowrap">Verified Immutable</span>
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1.5">No. WhatsApp Perwakilan</label>
+                  <input 
+                    type="tel" required placeholder="0812xxxxxxxx"
+                    value={newVendorData.telepon} onChange={e => setNewVendorData(p => ({...p, telepon: e.target.value}))}
+                    className="w-full text-sm border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1.5">Kota / Kabupaten</label>
+                  <input 
+                    type="text" required placeholder="Contoh: Bandung"
+                    value={newVendorData.kota} onChange={e => setNewVendorData(p => ({...p, kota: e.target.value}))}
+                    className="w-full text-sm border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1.5">Provinsi</label>
+                  <input 
+                    type="text" required placeholder="Contoh: Jawa Barat"
+                    value={newVendorData.provinsi} onChange={e => setNewVendorData(p => ({...p, provinsi: e.target.value}))}
+                    className="w-full text-sm border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                  />
+                </div>
+              </div>
 
-                  <div className="pt-4 border-t border-slate-100">
-                    <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Menu Hari Ini (12 Ags 2026)</div>
-                    <div className="flex flex-wrap gap-2">
-                      {['Nasi Putih', 'Telur Dadar', 'Sayur Sop', 'Buah Pisang', 'Susu UHT'].map(m => (
-                        <span key={m} className="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-100 text-xs font-bold rounded-lg">{m}</span>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="pt-4 border-t border-slate-100">
-                    <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Riwayat Menu 3 Hari Terakhir</div>
-                    <div className="space-y-2">
-                      <div className="flex items-start gap-2 text-xs">
-                        <div className="w-16 font-bold text-slate-700 shrink-0">11 Ags:</div>
-                        <div className="text-slate-600">Nasi, Ayam Goreng, Sayur Bayam, Jeruk, Susu</div>
-                      </div>
-                      <div className="flex items-start gap-2 text-xs">
-                        <div className="w-16 font-bold text-slate-700 shrink-0">10 Ags:</div>
-                        <div className="text-slate-600">Nasi, Ikan Bakar, Tumis Kangkung, Melon, Susu</div>
-                      </div>
-                      <div className="flex items-start gap-2 text-xs">
-                        <div className="w-16 font-bold text-slate-700 shrink-0">09 Ags:</div>
-                        <div className="text-slate-600">Nasi, Daging Teriyaki, Capcay, Apel, Susu</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {!showReportForm ? (
-                    <div className="pt-4 border-t border-slate-100">
-                      <button 
-                        onClick={() => setShowReportForm(true)}
-                        className="w-full py-3 bg-red-50 text-red-700 hover:bg-red-100 font-bold rounded-xl transition-colors border border-red-200 flex items-center justify-center gap-2"
-                      >
-                        <AlertTriangle className="w-5 h-5" />
-                        Ada Masalah? Lapor ke BGN
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="pt-4 border-t border-slate-100">
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Kategori Masalah</label>
-                          <select 
-                            value={reportData.kategori}
-                            onChange={e => setReportData(p => ({...p, kategori: e.target.value}))}
-                            className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:border-blue-500 outline-none"
-                          >
-                            <option value="Kualitas Makanan">Kualitas Makanan (Basi, Keras, dll)</option>
-                            <option value="Higiene & Keamanan">Higiene (Ada benda asing)</option>
-                            <option value="Porsi Kurang">Porsi Kurang dari Semestinya</option>
-                            <option value="Lainnya">Lainnya</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Deskripsi Masalah</label>
-                          <textarea 
-                            value={reportData.isi}
-                            onChange={e => setReportData(p => ({...p, isi: e.target.value}))}
-                            className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 h-16 resize-none focus:border-blue-500 outline-none"
-                            placeholder="Ceritakan detail masalahnya..."
-                          />
-                        </div>
-                        <div className="pt-2">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Lampiran Foto Bukti</label>
-                          <div 
-                            onClick={() => setReportData(p => ({...p, fotoBukti: !p.fotoBukti}))}
-                            className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${reportData.fotoBukti ? 'border-emerald-500 bg-emerald-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-slate-400'}`}
-                          >
-                            {reportData.fotoBukti ? (
-                              <>
-                                <CheckCircle className="w-8 h-8 text-emerald-500 mb-2" />
-                                <div className="text-sm font-bold text-emerald-700">Foto Tersimpan</div>
-                                <div className="text-[10px] text-emerald-600 font-medium">Klik untuk membatalkan</div>
-                              </>
-                            ) : (
-                              <>
-                                <ImagePlus className="w-8 h-8 text-slate-400 mb-2" />
-                                <div className="text-sm font-bold text-slate-700">Ambil dari Kamera / Galeri</div>
-                                <div className="text-[10px] text-slate-500 font-medium text-center mt-1">Upload foto makanan yang bermasalah<br/>Format: JPG/PNG (Maks 5MB)</div>
-                              </>
-                            )}
+              <div>
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1.5">Kapasitas Harian Terpasang (Porsi)</label>
+                <input 
+                  type="number" required placeholder="Contoh: 3000"
+                  value={newVendorData.kapasitas} onChange={e => setNewVendorData(p => ({...p, kapasitas: e.target.value}))}
+                  className="w-full text-sm border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                />
+              </div>
+
+              <div className="pt-2 border-t border-slate-100">
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">Upload Berkas Persyaratan SPPG (Wajib 7 Dokumen)</label>
+                <p className="text-[10px] text-slate-500 mb-3">Silakan unggah dokumen persyaratan Anda untuk ditinjau oleh BGN Pusat:</p>
+                <div className="space-y-3">
+                  {[
+                    { key: 'akta', label: '1. Akta Pendirian Badan Usaha', accept: '.pdf' },
+                    { key: 'nib', label: '2. Nomor Induk Berusaha (NIB) OSS RBA', accept: '.pdf' },
+                    { key: 'npwp', label: '3. Nomor Pokok Wajib Pajak (NPWP)', accept: '.pdf' },
+                    { key: 'proposal', label: '4. Proposal Kerja Sama', accept: '.pdf' },
+                    { key: 'logo', label: '5. Logo Resmi Mitra SPPG', accept: '.png,.jpg,.jpeg' },
+                    { key: 'kontak', label: '6. NIK KTP & Kontak WhatsApp', accept: '.pdf,.jpg,.jpeg' },
+                    { key: 'lokasi', label: '7. Geotagging & Foto Kesiapan Bangunan', accept: '.pdf,.jpg,.jpeg' },
+                  ].map(doc => {
+                    const isUploaded = !!uploadedFiles[doc.key];
+                    return (
+                      <div key={doc.key} className="p-3 border border-slate-200 rounded-xl bg-slate-50 flex items-center justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xs font-bold text-slate-800">{doc.label}</div>
+                          <div className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
+                            {isUploaded ? `✓ ${uploadedFiles[doc.key]}` : 'Belum diunggah'}
                           </div>
                         </div>
-                        <div className="flex gap-2 pt-2">
-                          <button onClick={() => setShowReportForm(false)} className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 transition-colors">Batal</button>
-                          <button onClick={submitReport} className="flex-1 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">Kirim Laporan</button>
-                        </div>
+                        <label className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors shadow-sm
+                          ${isUploaded ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
+                          <input 
+                            type="file" 
+                            accept={doc.accept}
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setUploadedFiles(prev => ({ ...prev, [doc.key]: file.name }));
+                              }
+                            }}
+                          />
+                          {isUploaded ? 'Ubah File' : 'Upload Berkas'}
+                        </label>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
               </div>
-            ) : null}
+              
+              <div className="flex gap-3 pt-4 border-t border-slate-100">
+                <button type="button" onClick={() => setShowRegisterForm(false)} className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors text-xs">Batal</button>
+                <button type="submit" className="flex-1 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-xs shadow-sm">Kirim Berkas Pendaftaran</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Register Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative border border-slate-200 text-center animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-100">
+              <CheckCircle className="w-8 h-8" />
+            </div>
+            
+            <h3 className="font-heading font-bold text-xl text-slate-900 mb-2">Pendaftaran Berhasil Dikirim!</h3>
+            <p className="text-sm text-slate-600 leading-relaxed mb-6">
+              Sistem telah meregistrasi dapur **{newVendorData.nama}**. 
+              Status pengajuan saat ini adalah **Pending Verifikasi** menunggu survei fisik dan persetujuan dokumen oleh BGN Pusat. 
+              <br/><br/>
+              Kredensial login Anda akan aktif segera setelah disetujui BGN Pusat. Notifikasi kelulusan akan dikirimkan ke WhatsApp **{newVendorData.telepon}**.
+            </p>
+            
+            <button 
+              onClick={() => {
+                setShowSuccessModal(false);
+                setNewVendorData({ nama: '', direktur: '', email: '', telepon: '', kota: '', provinsi: '', password: '', kapasitas: '3000' });
+                setUploadedFiles({});
+              }}
+              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-colors text-sm shadow-sm"
+            >
+              Saya Mengerti
+            </button>
           </div>
         </div>
       )}

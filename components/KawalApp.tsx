@@ -8,12 +8,13 @@ import LoginPage from './LoginPage';
 import SppgPortal from './SppgPortal';
 import SchoolPortal from './SchoolPortal';
 import CommandCenter from './CommandCenter';
+import { vendors as defaultVendors, type Vendor } from '@/lib/mockData';
 
 export type ActiveView = 'landing' | 'login' | 'sppg' | 'sekolah' | 'command';
 
 // Sub-views per role
 export type BgnSubView = 'overview' | 'risk' | 'licensing-review' | 'finance' | 'complaints' | 'ghost-detection';
-export type SppgSubView = 'dashboard' | 'licensing' | 'nutrition' | 'delivery-history' | 'onboarding' | 'hygiene';
+export type SppgSubView = 'dashboard' | 'licensing' | 'nutrition' | 'delivery-history' | 'onboarding' | 'hygiene' | 'schools';
 export type SekolahSubView = 'dashboard' | 'receipt' | 'complaint' | 'student-list';
 export type ActiveSubView = BgnSubView | SppgSubView | SekolahSubView;
 
@@ -33,6 +34,16 @@ export interface GlobalComplaint {
 export default function KawalApp() {
   const [activeView, setActiveView] = useState<ActiveView>('landing');
   const [activeSubView, setActiveSubView] = useState<ActiveSubView>('overview');
+
+  // Global Vendors State
+  const [vendors, setVendors] = useState<Vendor[]>(defaultVendors);
+
+  // Logged-in Vendor State
+  const [loggedInVendor, setLoggedInVendor] = useState<any>({
+    nama: 'CV. Dapur Nusantara Sejahtera',
+    email: 'vendor@dapurnusantara.com',
+    id: 'V-001'
+  });
 
   // Global Complaints State
   const [globalComplaints, setGlobalComplaints] = useState<GlobalComplaint[]>([
@@ -61,6 +72,86 @@ export default function KawalApp() {
     setGlobalComplaints(prev => prev.map(c => c.id === id ? { ...c, status } : c));
   };
 
+  const registerVendor = (newReg: any) => {
+    const newId = `V-${String(vendors.length + 1).padStart(3, '0')}`;
+    const newVendor: Vendor = {
+      id: newId,
+      nama: newReg.nama,
+      kota: newReg.kota,
+      provinsi: newReg.provinsi,
+      kapasitas: newReg.kapasitas || 3000,
+      hargaSatuan: 14500,
+      distribusiHariIni: 0,
+      statusVerifikasi: 'Pending',
+      risikoSkor: 100,
+      anomali: [],
+      lat: newReg.lat || -6.2,
+      lng: newReg.lng || 106.8,
+      lastReport: 'Baru Terdaftar',
+      statusOnboarding: 'Pending Verifikasi',
+      tanggalDaftar: new Date().toLocaleDateString('id-ID'),
+      totalDistribusiAllTime: 0,
+      ceklistOnboarding: { nib: true, fotoDapur: false, gpsLokasi: false, rekeningAktif: true, kunjunganLapangan: false }
+    };
+    
+    // Embed login properties
+    (newVendor as any).email = newReg.email;
+    (newVendor as any).password = newReg.password;
+    (newVendor as any).telepon = newReg.telepon;
+    (newVendor as any).direktur = newReg.direktur;
+    
+    // Add 7 documents status & custom filename
+    (newVendor as any).dokumenPersyaratan = {
+      akta: { namaFile: newReg.files?.akta || 'akta_pendirian.pdf', status: 'Menunggu Verifikasi' },
+      nib: { namaFile: newReg.files?.nib || 'nib_oss.pdf', status: 'Menunggu Verifikasi' },
+      npwp: { namaFile: newReg.files?.npwp || 'npwp_badan.pdf', status: 'Menunggu Verifikasi' },
+      proposal: { namaFile: newReg.files?.proposal || 'proposal_kerjasama.pdf', status: 'Menunggu Verifikasi' },
+      logo: { namaFile: newReg.files?.logo || 'logo_sppg.png', status: 'Menunggu Verifikasi' },
+      kontak: { namaFile: newReg.files?.kontak || 'ktp_kontak.pdf', status: 'Menunggu Verifikasi' },
+      lokasi: { namaFile: newReg.files?.lokasi || 'lokasi_kesiapan.pdf', status: 'Menunggu Verifikasi' },
+    };
+    
+    setVendors(prev => [...prev, newVendor]);
+  };
+
+  const updateVendorDocuments = (vendorId: string, docKey: string, status: string, filename?: string) => {
+    setVendors(prev => prev.map(v => {
+      if (v.id === vendorId) {
+        const currentDocs = (v as any).dokumenPersyaratan || {};
+        const updatedDoc = {
+          namaFile: filename || currentDocs[docKey]?.namaFile || 'document.pdf',
+          status: status
+        };
+        return {
+          ...v,
+          dokumenPersyaratan: {
+            ...currentDocs,
+            [docKey]: updatedDoc
+          }
+        };
+      }
+      return v;
+    }));
+
+    setLoggedInVendor((prev: any) => {
+      if (prev && prev.id === vendorId) {
+        const currentDocs = prev.dokumenPersyaratan || {};
+        const updatedDoc = {
+          namaFile: filename || currentDocs[docKey]?.namaFile || 'document.pdf',
+          status: status
+        };
+        return {
+          ...prev,
+          dokumenPersyaratan: {
+            ...currentDocs,
+            [docKey]: updatedDoc
+          }
+        };
+      }
+      return prev;
+    });
+  };
+
   // Reset sub-view when role changes
   const handleSetActiveView = (view: ActiveView) => {
     setActiveView(view);
@@ -75,7 +166,7 @@ export default function KawalApp() {
       <div className="min-h-screen flex flex-col bg-[var(--color-bg-base)]">
         <TopNavbar setActiveView={handleSetActiveView} />
         <main className="flex-1 w-full max-w-[1440px] mx-auto relative overflow-hidden">
-          <LandingPage setActiveView={handleSetActiveView} addComplaint={addComplaint} />
+          <LandingPage setActiveView={handleSetActiveView} addComplaint={addComplaint} registerVendor={registerVendor} />
         </main>
       </div>
     );
@@ -86,7 +177,7 @@ export default function KawalApp() {
       <div className="min-h-screen flex flex-col bg-[var(--color-bg-base)]">
         <TopNavbar setActiveView={handleSetActiveView} />
         <main className="flex-1 w-full max-w-[1440px] mx-auto relative overflow-hidden">
-          <LoginPage setActiveView={handleSetActiveView} />
+          <LoginPage setActiveView={handleSetActiveView} vendors={vendors} setLoggedInVendor={setLoggedInVendor} />
         </main>
       </div>
     );
@@ -100,9 +191,17 @@ export default function KawalApp() {
         setActiveView={handleSetActiveView}
         activeSubView={activeSubView}
         setActiveSubView={setActiveSubView}
+        loggedInVendor={loggedInVendor}
       />
       <main className="flex-1 min-w-0 h-screen overflow-y-auto">
-        {activeView === 'sppg' && <SppgPortal activeSubView={activeSubView as SppgSubView} setActiveSubView={setActiveSubView} />}
+        {activeView === 'sppg' && (
+          <SppgPortal 
+            activeSubView={activeSubView as SppgSubView} 
+            setActiveSubView={setActiveSubView} 
+            loggedInVendor={loggedInVendor}
+            updateVendorDocuments={updateVendorDocuments}
+          />
+        )}
         {activeView === 'sekolah' && (
           <SchoolPortal 
             activeSubView={activeSubView as SekolahSubView} 
@@ -118,6 +217,8 @@ export default function KawalApp() {
             setActiveSubView={setActiveSubView}
             complaints={globalComplaints}
             updateComplaintStatus={updateComplaintStatus}
+            vendors={vendors}
+            setVendors={setVendors}
           />
         )}
       </main>

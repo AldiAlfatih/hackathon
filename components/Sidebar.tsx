@@ -13,6 +13,7 @@ interface SidebarProps {
   setActiveView: (view: ActiveView) => void;
   activeSubView: ActiveSubView;
   setActiveSubView: (sub: ActiveSubView) => void;
+  loggedInVendor?: any;
 }
 
 interface MenuItem {
@@ -34,43 +35,45 @@ const BGN_MENUS: MenuItem[] = [
 
 const SPPG_MENUS: MenuItem[] = [
   { id: 'dashboard',        label: 'Dashboard',             icon: Home,     desc: 'Ringkasan Operasional' },
+  { id: 'schools',          label: 'Manajemen Sekolah',     icon: GraduationCap, desc: 'Daftar Sekolah & Siswa' },
   { id: 'onboarding',       label: 'Onboarding & Verifikasi', icon: ClipboardCheck, desc: 'Wajib Sebelum Distribusi', badge: '!' },
   { id: 'delivery-history', label: 'Riwayat Pengiriman',    icon: Package,  desc: 'Rekam Jejak Distribusi' },
-  { id: 'licensing',        label: 'Perizinan (NIB)',       icon: FileText, desc: 'Verifikasi & Upload Izin' },
+  { id: 'licensing',        label: 'Syarat Izin SPPG',      icon: FileText, desc: 'Dokumen Persyaratan SPPG' },
   { id: 'nutrition',        label: 'Nutrition Center',      icon: Utensils, desc: 'Laporan Foto & Kepatuhan Gizi' },
   { id: 'hygiene',          label: 'Live Guard Monitoring', icon: Camera,   desc: 'Hygiene Compliance AI' },
+  { id: 'dashboard',        label: 'Dashboard SPPG',        icon: Home,           desc: 'Ringkasan & Status Harian' },
+  { id: 'schools',          label: 'Manajemen Sekolah',     icon: Users,          desc: 'Daftar Sekolah Penerima' },
+  { id: 'onboarding',       label: 'Verifikasi Fisik',      icon: ClipboardCheck, desc: 'Laporan Kesiapan Dapur' },
+  { id: 'licensing',        label: 'Syarat Izin SPPG',     icon: FileText,       desc: 'Dokumen Persyaratan SPPG' },
+  { id: 'nutrition',        label: 'Sentra Nutrisi',        icon: Utensils,       desc: 'Menu & Informasi Gizi harian' },
+  { id: 'delivery-history', label: 'Riwayat Distribusi',    icon: Activity,       desc: 'Data Pengiriman Porsi Makanan' },
 ];
 
 const SEKOLAH_MENUS: MenuItem[] = [
-  { id: 'dashboard',    label: 'Dashboard',           icon: Home,           desc: 'Status Harian Sekolah' },
-  { id: 'receipt',      label: 'Goods Receipt',       icon: Package,        desc: 'Terima & Verifikasi Porsi' },
-  { id: 'student-list', label: 'Data Penerima',       icon: Users,          desc: 'Daftar Siswa & Absensi' },
-  { id: 'complaint',    label: 'Complaint Inbox',     icon: MessageSquare,  desc: 'Keluhan Siswa & Orang Tua' },
+  { id: 'dashboard',        label: 'Dashboard Sekolah',     icon: Home,           desc: 'Ringkasan Makan Hari Ini' },
+  { id: 'receipt',          label: 'Konfirmasi Penerimaan', icon: ClipboardCheck, desc: 'Input Jumlah & Kualitas Porsi' },
+  { id: 'complaint',        label: 'Aduan Masalah',         icon: AlertTriangle,  desc: 'Laporkan Ketidaksesuaian' },
+  { id: 'student-list',     label: 'Daftar Siswa',          icon: Users,          desc: 'Data Penerima Manfaat' },
 ];
 
-export default function Sidebar({ activeView, setActiveView, activeSubView, setActiveSubView }: SidebarProps) {
-  const menus = activeView === 'command' ? BGN_MENUS
-              : activeView === 'sppg'    ? SPPG_MENUS
-              : SEKOLAH_MENUS;
-
-  const roleLabel = activeView === 'command' ? 'BGN / Regulator'
-                  : activeView === 'sppg'    ? 'SPPG Mitra Vendor'
-                  : 'Sekolah Penerima';
-
-  const roleIcon = activeView === 'command' ? BarChart3
-                 : activeView === 'sppg'    ? Building2
-                 : GraduationCap;
-
-  const RoleIcon = roleIcon;
+export default function Sidebar({ activeView, setActiveView, activeSubView, setActiveSubView, loggedInVendor }: SidebarProps) {
+  const menus = activeView === 'command' ? BGN_MENUS : activeView === 'sppg' ? SPPG_MENUS : SEKOLAH_MENUS;
+  const roleLabel = activeView === 'command' ? 'Regulator BGN' : activeView === 'sppg' ? 'Mitra SPPG' : 'Penerima';
+  const RoleIcon = activeView === 'command' ? BarChart3 : activeView === 'sppg' ? Building2 : GraduationCap;
 
   return (
-    <div className="w-64 h-screen shrink-0 bg-white border-r border-slate-200 flex flex-col font-sans text-slate-800">
+    <div className="w-64 bg-white border-r border-slate-200 flex flex-col h-screen shrink-0 font-sans">
       
-      {/* Brand Header */}
-      <div className="h-16 flex items-center px-5 border-b border-slate-200">
-        <div className="flex items-center gap-2">
-          <img src="/logo-mbg.png" alt="KAWAL-MBG Logo" className="w-7 h-7 object-contain" />
-          <div className="font-heading font-black text-lg tracking-wide text-blue-950">KAWAL-MBG</div>
+      {/* Brand logo */}
+      <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="p-1.5 rounded-lg bg-blue-600 text-white">
+            <Shield className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="font-heading font-black text-slate-800 text-base leading-none tracking-tight">KAWAL-MBG</div>
+            <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1">Regulator & Mitra Portal</div>
+          </div>
         </div>
       </div>
 
@@ -81,7 +84,7 @@ export default function Sidebar({ activeView, setActiveView, activeSubView, setA
         </div>
         <div className="min-w-0">
           <div className="text-slate-900 font-bold text-xs truncate leading-tight">
-            {activeView === 'command' ? 'Admin BGN' : activeView === 'sppg' ? 'CV. Dapur Nusantara' : 'SDN 01 Cilandak'}
+            {activeView === 'command' ? 'Admin BGN' : activeView === 'sppg' ? (loggedInVendor?.nama || 'CV. Dapur Nusantara') : 'SDN 01 Cilandak'}
           </div>
           <div className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">{roleLabel}</div>
         </div>
