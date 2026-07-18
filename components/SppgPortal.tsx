@@ -26,6 +26,7 @@ interface SppgPortalProps {
 
 export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVendor, updateVendorDocuments }: SppgPortalProps) {
   const [selectedDocKey, setSelectedDocKey] = useState<string>('akta');
+  const [menuSiklus, setMenuSiklus] = useState<'siklus1' | 'siklus2'>('siklus1');
   const [ocrState, setOcrState] = useState<'idle' | 'processing' | 'done'>('idle');
   const [ocrResult, setOcrResult] = useState<OcrResult | null>(null);
   const [nutritionState, setNutritionState] = useState<'idle' | 'uploading' | 'analyzing' | 'done'>('idle');
@@ -516,21 +517,86 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
           <div className="grid lg:grid-cols-2 gap-6 pb-6">
             {/* Planned Menu */}
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col overflow-hidden">
-              <div className="p-5 border-b border-slate-100 bg-slate-50">
-                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">1. Menu Wajib Hari Ini</h2>
-                <p className="text-xs text-slate-500 mt-1">Jadwal Gizi Nasional yang ditetapkan oleh BGN untuk disajikan.</p>
-              </div>
-              <div className="p-6 flex-1">
-                <div className="space-y-3">
-                  {['Nasi Putih', 'Telur Dadar', 'Sayur Sop / Bayam', 'Buah Pisang', 'Susu UHT 200ml'].map((item) => (
-                    <div key={item} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                      <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></div>
-                      <span className="text-sm font-bold text-slate-700">{item}</span>
-                    </div>
-                  ))}
+              <div className="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">1. Jadwal Menu Gizi Nasional</h2>
+                  <p className="text-xs text-slate-500 mt-1">Siklus menu ditetapkan BGN Pusat (Rotasi 2 Kali Seminggu).</p>
                 </div>
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-xs text-blue-700 font-medium">
-                  📋 Menu ditetapkan oleh BGN &bull; Update setiap awal pekan
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 uppercase">
+                  Siklus Aktif
+                </span>
+              </div>
+              <div className="p-6 flex-1 flex flex-col justify-between">
+                <div>
+                  {/* Cycle Selector Buttons */}
+                  <div className="flex gap-2 mb-5 p-1 bg-slate-100 rounded-lg border border-slate-200">
+                    <button
+                      onClick={() => {
+                        setMenuSiklus('siklus1');
+                        setNutritionState('idle');
+                      }}
+                      className={`flex-1 py-2 text-center text-xs font-bold rounded-md transition-all ${
+                        menuSiklus === 'siklus1'
+                          ? 'bg-white text-blue-600 shadow-sm border border-slate-200/50'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      🗓️ Siklus I (Senin - Rabu)
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMenuSiklus('siklus2');
+                        setNutritionState('idle');
+                      }}
+                      className={`flex-1 py-2 text-center text-xs font-bold rounded-md transition-all ${
+                        menuSiklus === 'siklus2'
+                          ? 'bg-white text-blue-600 shadow-sm border border-slate-200/50'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      🗓️ Siklus II (Kamis - Jumat)
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {menuSiklus === 'siklus1' ? (
+                      [
+                        { name: 'Nasi Putih', type: 'Karbohidrat Utama' },
+                        { name: 'Telur Dadar Slice', type: 'Protein Hewani' },
+                        { name: 'Sayur Sop / Bayam', type: 'Serat & Vitamin' },
+                        { name: 'Buah Pisang Mas', type: 'Suplemen & Kalium' },
+                        { name: 'Susu UHT Plain 200ml', type: 'Kalsium Tambahan' },
+                      ].map((item) => (
+                        <div key={item.name} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200/60 hover:bg-slate-100/50 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></div>
+                            <span className="text-sm font-bold text-slate-700">{item.name}</span>
+                          </div>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{item.type}</span>
+                        </div>
+                      ))
+                    ) : (
+                      [
+                        { name: 'Nasi Merah / Kuning', type: 'Karbohidrat Utama' },
+                        { name: 'Ayam Goreng Fillet Tepung', type: 'Protein Hewani' },
+                        { name: 'Tumis Wortel & Buncis', type: 'Serat & Vitamin' },
+                        { name: 'Buah Apel / Jeruk Manis', type: 'Suplemen & Kalium' },
+                        { name: 'Susu UHT Cokelat 200ml', type: 'Kalsium Tambahan' },
+                      ].map((item) => (
+                        <div key={item.name} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200/60 hover:bg-slate-100/50 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
+                            <span className="text-sm font-bold text-slate-700">{item.name}</span>
+                          </div>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{item.type}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-5 p-3.5 bg-blue-50 border border-blue-100 rounded-lg text-xs text-blue-700 font-semibold leading-relaxed">
+                  💡 <strong>Informasi Siklus Menu:</strong> Menu berganti otomatis setiap 2 kali seminggu untuk memenuhi standar AKG (Angka Kecukupan Gizi) nasional BGN. Harap sesuaikan bahan baku harian dapur Anda.
                 </div>
               </div>
             </div>
@@ -565,21 +631,41 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                 )}
                 {nutritionState === 'done' && (
                   <div className="flex-1 flex flex-col gap-4">
-                    <div className="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <div className={`flex items-center justify-between p-4 rounded-xl border ${
+                      menuSiklus === 'siklus1' ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200'
+                    }`}>
                       <div>
                         <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Component Completeness</div>
-                        <div className="text-3xl font-mono font-bold text-amber-600">80%</div>
+                        <div className={`text-3xl font-mono font-bold ${
+                          menuSiklus === 'siklus1' ? 'text-amber-600' : 'text-emerald-600'
+                        }`}>
+                          {menuSiklus === 'siklus1' ? '80%' : '100%'}
+                        </div>
                       </div>
-                      <span className="px-3 py-1 bg-amber-100 text-amber-700 border border-amber-200 rounded-lg font-bold text-xs uppercase">Needs Review</span>
+                      <span className={`px-3 py-1 rounded-lg font-bold text-xs uppercase border ${
+                        menuSiklus === 'siklus1' 
+                          ? 'bg-amber-100 text-amber-700 border-amber-200' 
+                          : 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                      }`}>
+                        {menuSiklus === 'siklus1' ? 'Needs Review' : 'Verified & Lengkap'}
+                      </span>
                     </div>
                     <div className="space-y-2">
                       <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Hasil Deteksi AI:</div>
-                      <div className="flex items-center gap-2 text-sm font-bold text-emerald-700 bg-emerald-50 px-3 py-2.5 rounded-lg border border-emerald-100">
-                        <CheckSquare className="w-4 h-4 shrink-0" /> Nasi, Telur, Sayur, Susu — Terdeteksi ✓
-                      </div>
-                      <div className="flex items-center gap-2 text-sm font-bold text-red-700 bg-red-50 px-3 py-2.5 rounded-lg border border-red-100">
-                        <XCircle className="w-4 h-4 shrink-0" /> Buah Pisang — Tidak Ditemukan ✗
-                      </div>
+                      {menuSiklus === 'siklus1' ? (
+                        <>
+                          <div className="flex items-center gap-2 text-sm font-bold text-emerald-700 bg-emerald-50 px-3 py-2.5 rounded-lg border border-emerald-100">
+                            <CheckSquare className="w-4 h-4 shrink-0 text-emerald-600" /> Nasi Putih, Telur Dadar, Sayur Sop, Susu UHT — Terdeteksi ✓
+                          </div>
+                          <div className="flex items-center gap-2 text-sm font-bold text-red-700 bg-red-50 px-3 py-2.5 rounded-lg border border-red-100">
+                            <XCircle className="w-4 h-4 shrink-0 text-red-600" /> Buah Pisang — Tidak Ditemukan ✗
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-2 text-sm font-bold text-emerald-700 bg-emerald-50 px-3 py-2.5 rounded-lg border border-emerald-100">
+                          <CheckSquare className="w-4 h-4 shrink-0 text-emerald-600" /> Nasi Merah, Ayam Fillet, Tumis Wortel/Buncis, Buah Apel, Susu Cokelat — Lengkap Terdeteksi ✓
+                        </div>
+                      )}
                     </div>
                     <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600 flex items-start gap-2">
                       <AlertCircle className="w-4 h-4 shrink-0 text-amber-500 mt-0.5" />
