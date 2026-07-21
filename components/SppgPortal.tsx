@@ -6,7 +6,7 @@ import {
   Info, Calendar, CheckCircle2, AlertCircle, Loader2, 
   Clock, CheckSquare, XCircle, Home, Utensils, BarChart3,
   TrendingUp, TrendingDown, MapPin, Lock, Navigation,
-  BrainCircuit, ShieldCheck, Link, GraduationCap, Plus
+  BrainCircuit, ShieldCheck, Link, GraduationCap, Plus, RefreshCw, X
 } from 'lucide-react';
 import type { SppgSubView, ActiveSubView } from './KawalApp';
 
@@ -27,6 +27,11 @@ interface SppgPortalProps {
 export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVendor, updateVendorDocuments }: SppgPortalProps) {
   const [selectedDocKey, setSelectedDocKey] = useState<string>('akta');
   const [menuSiklus, setMenuSiklus] = useState<'siklus1' | 'siklus2'>('siklus1');
+  const [isAdjustmentModalOpen, setIsAdjustmentModalOpen] = useState(false);
+  const [adjustedItem, setAdjustedItem] = useState('Buah Pisang Mas');
+  const [replacementItem, setReplacementItem] = useState('');
+  const [adjustmentReason, setAdjustmentReason] = useState('');
+  const [pendingAdjustment, setPendingAdjustment] = useState<{ original: string; replacement: string; status: 'Pending' | 'Disetujui' } | null>(null);
   const [ocrState, setOcrState] = useState<'idle' | 'processing' | 'done'>('idle');
   const [ocrResult, setOcrResult] = useState<OcrResult | null>(null);
   const [nutritionState, setNutritionState] = useState<'idle' | 'uploading' | 'analyzing' | 'done'>('idle');
@@ -593,6 +598,37 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                       ))
                     )}
                   </div>
+
+                  {/* Adjustment Request Button and Pending Display */}
+                  <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-3">
+                    {pendingAdjustment ? (
+                      <div className={`p-3 rounded-lg border text-xs font-semibold flex items-center justify-between ${
+                        pendingAdjustment.status === 'Pending'
+                          ? 'bg-amber-50 border-amber-200 text-amber-700'
+                          : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                      }`}>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 shrink-0" />
+                          <div>
+                            <span className="font-bold">Ajuan Penyesuaian Lokal:</span>
+                            <div className="font-normal mt-0.5">
+                              {pendingAdjustment.original} ➔ <span className="font-bold text-slate-800">{pendingAdjustment.replacement}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <span className="px-2 py-0.5 rounded font-bold uppercase text-[10px] tracking-wider border bg-white shadow-sm">
+                          {pendingAdjustment.status === 'Pending' ? 'Menunggu Persetujuan BGN' : 'Disetujui'}
+                        </span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setIsAdjustmentModalOpen(true)}
+                        className="w-full py-2 bg-slate-50 border border-slate-200 text-slate-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-1.5"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" /> Ajukan Penyesuaian Menu (Local Swap)
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="mt-5 p-3.5 bg-blue-50 border border-blue-100 rounded-lg text-xs text-blue-700 font-semibold leading-relaxed">
@@ -954,6 +990,97 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors text-xs shadow-sm"
                 >
                   Simpan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- MENU ADJUSTMENT MODAL --- */}
+      {isAdjustmentModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+              <h3 className="font-heading font-bold text-slate-800 text-sm uppercase tracking-wider">Ajukan Penyesuaian Menu (Local Swap)</h3>
+              <button onClick={() => setIsAdjustmentModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1 bg-slate-200 hover:bg-slate-300 rounded-lg">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              setPendingAdjustment({
+                original: adjustedItem,
+                replacement: replacementItem,
+                status: 'Pending'
+              });
+              setIsAdjustmentModalOpen(false);
+              // Auto approve after 4 seconds to show center's authority/control
+              setTimeout(() => {
+                setPendingAdjustment(prev => prev ? { ...prev, status: 'Disetujui' } : null);
+              }, 4000);
+            }} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Bahan Menu Asli (BGN)</label>
+                <select
+                  value={adjustedItem}
+                  onChange={e => setAdjustedItem(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                >
+                  {menuSiklus === 'siklus1' ? (
+                    <>
+                      <option value="Buah Pisang Mas">Buah Pisang Mas</option>
+                      <option value="Telur Dadar Slice">Telur Dadar Slice</option>
+                      <option value="Sayur Sop / Bayam">Sayur Sop / Bayam</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="Buah Apel / Jeruk Manis">Buah Apel / Jeruk Manis</option>
+                      <option value="Ayam Goreng Fillet Tepung">Ayam Goreng Fillet Tepung</option>
+                      <option value="Tumis Wortel & Buncis">Tumis Wortel & Buncis</option>
+                    </>
+                  )}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Bahan Pengganti Lokal</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Contoh: Buah Apel Malang / Jeruk Purut"
+                  value={replacementItem}
+                  onChange={e => setReplacementItem(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Alasan Keterbatasan / Perubahan</label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="Contoh: Stok pisang matang dari petani lokal sedang kosong..."
+                  value={adjustmentReason}
+                  onChange={e => setAdjustmentReason(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsAdjustmentModalOpen(false)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors text-xs"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors text-xs shadow-sm"
+                >
+                  Kirim Ajuan ke BGN
                 </button>
               </div>
             </form>
