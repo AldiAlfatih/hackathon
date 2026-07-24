@@ -103,8 +103,8 @@ export default function SchoolPortal({
           <ChevronRight className="w-3 h-3" />
           <span className="text-slate-800">{breadcrumb}</span>
         </div>
-        <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">SDN 01 Cilandak</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Jl. Cilandak Raya No. 1, Jakarta Selatan &bull; NPSN: 20104852</p>
+        <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">SDN 1 Parepare</h1>
+        <p className="text-sm text-slate-500 mt-0.5">Jl. Jend. Sudirman No. 12, Kota Parepare, Sulawesi Selatan &bull; NPSN: 40302150</p>
       </div>
 
       <div className="flex-1 min-h-0 overflow-auto">

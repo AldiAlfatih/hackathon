@@ -47,17 +47,17 @@ export default function KawalApp() {
 
   // Global Complaints State
   const [globalComplaints, setGlobalComplaints] = useState<GlobalComplaint[]>([
-    { id: '#CMP-8801', sekolah: 'SDN 12 Karet Setiabudi', severity: 'High', laporan: 'Ditemukan benda asing (kecoa) pada makanan', status: 'Investigating', tanggal: '12/08/2026', kategori: 'Higiene & Keamanan', fotoBukti: true, sumber: 'Sekolah' },
-    { id: '#CMP-8777', sekolah: 'MTsN 3 Depok', severity: 'High', laporan: 'SPPG tidak hadir 2 hari berturut-turut tanpa konfirmasi', status: 'Open', tanggal: '11/08/2026', kategori: 'Keterlambatan/Absen', fotoBukti: false, sumber: 'Sekolah' },
-    { id: '#CMP-8720', sekolah: 'SDN 05 Lebak Bulus', severity: 'Medium', laporan: 'Porsi kurang dari surat jalan selama 3 hari', status: 'Resolved', tanggal: '10/08/2026', kategori: 'Porsi Kurang', fotoBukti: false, sumber: 'Sekolah' },
-    { id: '#CMP-8812', sekolah: 'SDN 01 Cilandak', severity: 'Low', laporan: 'Nasi agak keras di kelas 4B', status: 'Open', tanggal: '12/08/2026', kategori: 'Kualitas Makanan', fotoBukti: false, sumber: 'Publik' },
+    { id: '#CMP-8801', sekolah: 'SDN 1 Parepare', severity: 'High', laporan: 'Ditemukan benda asing pada makanan', status: 'Investigating', tanggal: '12/08/2026', kategori: 'Higiene & Keamanan', fotoBukti: true, sumber: 'Sekolah' },
+    { id: '#CMP-8777', sekolah: 'MTs Negeri Parepare', severity: 'High', laporan: 'SPPG terlambat 1 jam pengiriman tanpa konfirmasi', status: 'Open', tanggal: '11/08/2026', kategori: 'Keterlambatan/Absen', fotoBukti: false, sumber: 'Sekolah' },
+    { id: '#CMP-8720', sekolah: 'SDN 5 Parepare', severity: 'Medium', laporan: 'Porsi kurang dari surat jalan selama 3 hari', status: 'Resolved', tanggal: '10/08/2026', kategori: 'Porsi Kurang', fotoBukti: false, sumber: 'Sekolah' },
+    { id: '#CMP-8812', sekolah: 'SDN 1 Parepare', severity: 'Low', laporan: 'Nasi agak keras di kelas 4B', status: 'Open', tanggal: '12/08/2026', kategori: 'Kualitas Makanan', fotoBukti: false, sumber: 'Publik' },
   ]);
 
   const addComplaint = (complaint: Omit<GlobalComplaint, 'id' | 'status' | 'tanggal' | 'sekolah'> & { sekolah?: string }) => {
     const newId = `#CMP-${Math.floor(8900 + Math.random() * 100)}`;
     setGlobalComplaints(prev => [{
       id: newId,
-      sekolah: complaint.sekolah || 'SDN 01 Cilandak',
+      sekolah: complaint.sekolah || 'SDN 1 Parepare',
       severity: complaint.severity,
       laporan: complaint.laporan,
       kategori: complaint.kategori,
@@ -206,7 +206,7 @@ export default function KawalApp() {
           <SchoolPortal 
             activeSubView={activeSubView as SekolahSubView} 
             setActiveSubView={setActiveSubView} 
-            complaints={globalComplaints.filter(c => c.sekolah === 'SDN 01 Cilandak')}
+            complaints={globalComplaints.filter(c => c.sekolah === 'SDN 1 Parepare')}
             updateComplaintStatus={updateComplaintStatus}
             addComplaint={addComplaint}
           />

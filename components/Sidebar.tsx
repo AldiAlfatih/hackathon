@@ -77,7 +77,7 @@ export default function Sidebar({ activeView, setActiveView, activeSubView, setA
         </div>
         <div className="min-w-0">
           <div className="text-slate-900 font-bold text-xs truncate leading-tight">
-            {activeView === 'command' ? 'Admin BGN' : activeView === 'sppg' ? (loggedInVendor?.nama || 'CV. Dapur Nusantara') : 'SDN 01 Cilandak'}
+            {activeView === 'command' ? 'Admin BGN' : activeView === 'sppg' ? (loggedInVendor?.nama || 'CV. Dapur Nusantara') : 'SDN 1 Parepare'}
           </div>
           <div className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">{roleLabel}</div>
         </div>

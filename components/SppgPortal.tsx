@@ -61,8 +61,8 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
   const [schools, setSchools] = useState([
     { 
       id: 'sch-01',
-      nama: 'SDN 01 Cilandak', 
-      lokasi: 'Cilandak Barat, Jakarta Selatan', 
+      nama: 'SDN 1 Parepare', 
+      lokasi: 'Kec. Ujung, Kota Parepare', 
       siswa: 450, 
       kontrak: '450 Porsi / Hari (Jam 07:00)',
       daftarSiswa: [
@@ -73,8 +73,8 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
     },
     { 
       id: 'sch-02',
-      nama: 'SDN 05 Lebak Bulus', 
-      lokasi: 'Lebak Bulus, Jakarta Selatan', 
+      nama: 'SDN 5 Parepare', 
+      lokasi: 'Kec. Bacukiki, Kota Parepare', 
       siswa: 380, 
       kontrak: '380 Porsi / Hari (Jam 07:30)',
       daftarSiswa: [
@@ -85,13 +85,13 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
     },
     { 
       id: 'sch-03',
-      nama: 'MTS Nurul Iman', 
-      lokasi: 'Jagakarsa, Jakarta Selatan', 
+      nama: 'MTs Negeri Parepare', 
+      lokasi: 'Kec. Soreang, Kota Parepare', 
       siswa: 420, 
       kontrak: '420 Porsi / Hari (Jam 08:00)',
       daftarSiswa: [
         { nama: 'Gita Gutawa', nisn: '0012345701', kelas: '7A', alergi: '-' },
-        { nama: 'Hendra Setiawan', nisn: '0012345702', kelas: '8B', alergi: 'Telur' },
+        { nama: 'Hendra Setiawan', nisn: '0012345702', kelas: '7B', alergi: 'Telur' },
         { nama: 'Indah Permata', nisn: '0012345703', kelas: '9C', alergi: '-' },
       ]
     },
@@ -342,9 +342,9 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
               </div>
               <div className="divide-y divide-slate-100">
                 {[
-                  { sekolah: 'SDN 01 Cilandak', porsi: 450, jam: '07:00', status: 'Selesai', statusColor: 'emerald' },
-                  { sekolah: 'SDN 05 Lebak Bulus', porsi: 380, jam: '07:30', status: 'Selesai', statusColor: 'emerald' },
-                  { sekolah: 'MTS Nurul Iman', porsi: 420, jam: '08:00', status: 'Dalam Perjalanan', statusColor: 'blue' },
+                  { sekolah: 'SDN 1 Parepare', porsi: 450, jam: '07:00', status: 'Selesai', statusColor: 'emerald' },
+                  { sekolah: 'SDN 5 Parepare', porsi: 380, jam: '07:30', status: 'Selesai', statusColor: 'emerald' },
+                  { sekolah: 'MTs Negeri Parepare', porsi: 420, jam: '08:00', status: 'Dalam Perjalanan', statusColor: 'blue' },
                 ].map((row, i) => (
                   <div key={i} className="px-5 py-4 flex items-center justify-between text-sm">
                     <div>
@@ -1071,11 +1071,11 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {[
-                    { date: '11 Agustus 2026', school: 'SDN 01 Cilandak', menu: 'Nasi, Ayam Goreng, Sayur', qty: 450, status: 'Selesai' },
-                    { date: '11 Agustus 2026', school: 'SDN 05 Lebak Bulus', menu: 'Nasi, Ayam Goreng, Sayur', qty: 380, status: 'Selesai' },
-                    { date: '10 Agustus 2026', school: 'SDN 01 Cilandak', menu: 'Nasi, Ikan Bakar, Sayur', qty: 450, status: 'Selesai' },
-                    { date: '10 Agustus 2026', school: 'SDN 05 Lebak Bulus', menu: 'Nasi, Ikan Bakar, Sayur', qty: 380, status: 'Selesai' },
-                    { date: '09 Agustus 2026', school: 'SDN 01 Cilandak', menu: 'Nasi, Telur Dadar, Sayur', qty: 450, status: 'Selesai' },
+                    { date: '11 Agustus 2026', school: 'SDN 1 Parepare', menu: 'Nasi, Ayam Goreng, Sayur', qty: 450, status: 'Selesai' },
+                    { date: '11 Agustus 2026', school: 'SDN 5 Parepare', menu: 'Nasi, Ayam Goreng, Sayur', qty: 380, status: 'Selesai' },
+                    { date: '10 Agustus 2026', school: 'SDN 1 Parepare', menu: 'Nasi, Ikan Bakar, Sayur', qty: 450, status: 'Selesai' },
+                    { date: '10 Agustus 2026', school: 'SDN 5 Parepare', menu: 'Nasi, Ikan Bakar, Sayur', qty: 380, status: 'Selesai' },
+                    { date: '09 Agustus 2026', school: 'SDN 1 Parepare', menu: 'Nasi, Telur Dadar, Sayur', qty: 450, status: 'Selesai' },
                   ].map((row, i) => (
                     <tr key={i} className="hover:bg-slate-50">
                       <td className="py-3.5 px-5 font-mono text-xs text-slate-500">{row.date}</td>
@@ -1184,7 +1184,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                 <input 
                   type="text" 
                   required
-                  placeholder="Contoh: SDN 03 Cilandak" 
+                  placeholder="Contoh: SDN 3 Parepare" 
                   value={newSchoolName}
                   onChange={e => setNewSchoolName(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
@@ -1196,7 +1196,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                 <input 
                   type="text" 
                   required
-                  placeholder="Contoh: Cilandak Timur, Jakarta Selatan" 
+                  placeholder="Contoh: Kec. Bacukiki Barat, Parepare" 
                   value={newSchoolAddress}
                   onChange={e => setNewSchoolAddress(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"

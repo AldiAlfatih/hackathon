@@ -106,14 +106,14 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
       return;
     }
     
-    let lat = -6.2;
-    let lng = 106.8;
-    if (newVendorData.kota.toLowerCase().includes('bandung')) {
-      lat = -6.91; lng = 107.61;
-    } else if (newVendorData.kota.toLowerCase().includes('surabaya')) {
-      lat = -7.25; lng = 112.75;
-    } else if (newVendorData.kota.toLowerCase().includes('medan')) {
-      lat = 3.59; lng = 98.67;
+    let lat = -4.0135;
+    let lng = 119.6234;
+    if (newVendorData.kota.toLowerCase().includes('bacukiki')) {
+      lat = -4.0412; lng = 119.6451;
+    } else if (newVendorData.kota.toLowerCase().includes('soreang')) {
+      lat = -4.0045; lng = 119.6312;
+    } else if (newVendorData.kota.toLowerCase().includes('lumpue')) {
+      lat = -4.0520; lng = 119.6210;
     }
     
     if (registerVendor) {
@@ -198,7 +198,7 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
             
             <div className="relative w-full md:w-96">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400" />
-              <input type="text" defaultValue="SDN 01 Cilandak" className="w-full pl-12 pr-4 py-4 text-lg bg-white border border-slate-300 rounded-xl font-bold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 shadow-sm transition-all" placeholder="Cari sekolah..." />
+              <input type="text" defaultValue="SDN 1 Parepare" className="w-full pl-12 pr-4 py-4 text-lg bg-white border border-slate-300 rounded-xl font-bold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 shadow-sm transition-all" placeholder="Cari sekolah..." />
             </div>
           </div>
           
@@ -206,8 +206,8 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
             
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 mb-8 flex items-center justify-between">
               <div>
-                <div className="font-bold text-emerald-900 text-2xl">SDN 01 Cilandak</div>
-                <div className="text-sm font-bold text-emerald-700 mt-1">Kel. Cilandak Barat, Jakarta Selatan</div>
+                <div className="font-bold text-emerald-900 text-2xl">SDN 1 Parepare</div>
+                <div className="text-sm font-bold text-emerald-700 mt-1">Kel. Mallusetasi, Kec. Ujung, Kota Parepare</div>
               </div>
               <div className="text-right">
                 <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Sumber Anggaran</div>
