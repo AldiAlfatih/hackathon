@@ -1,8 +1,8 @@
 'use client';
 
-import { Shield, ArrowRight, Zap, Building2, Server, Database, CheckCircle, AlertTriangle, Users, BookOpen, Utensils, X, Camera, Search, ImageIcon, MapPin, AlertOctagon, Clock } from 'lucide-react';
+import { Shield, ArrowRight, Zap, Building2, Server, Database, CheckCircle, AlertTriangle, Users, BookOpen, Utensils, X, Camera, Search, ImageIcon, MapPin, AlertOctagon, Clock, QrCode, ScanLine } from 'lucide-react';
 import type { ActiveView, GlobalComplaint } from './KawalApp';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { vendors } from '@/lib/mockData';
 import IndonesiaMap from './IndonesiaMap';
 
@@ -25,6 +25,58 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
   const [sppgSearch, setSppgSearch] = useState('');
   const [showSppgReportForm, setShowSppgReportForm] = useState(false);
   const [sppgReportData, setSppgReportData] = useState({ namaSppg: '', indikasi: 'Tidak Pernah Ada Aktivitas Masak', deskripsi: '', fotoLokasi: false });
+
+  // QR Scan States
+  const [qrScanState, setQrScanState] = useState<'idle' | 'scanning' | 'done'>('idle');
+  const [showQrMenuModal, setShowQrMenuModal] = useState(false);
+  const [qrImageUrl, setQrImageUrl] = useState('');
+
+  // Generate real QR code URL from current origin + detect mobile scan
+  useEffect(() => {
+    const origin = window.location.origin;
+    const menuUrl = `${origin}/?qr=menu`;
+    // Use api.qrserver.com to generate a real, scannable QR barcode
+    setQrImageUrl(
+      `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(menuUrl)}&bgcolor=ffffff&color=1e3a8a&margin=8`
+    );
+
+    // Auto-open menu modal if visited via QR scan (?qr=menu)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('qr') === 'menu') {
+      setShowQrMenuModal(true);
+      setQrScanState('done');
+    }
+  }, []);
+
+  // Today's menu data (dynamic — in real impl. fetched from API)
+  const today = new Date();
+  const todayStr = today.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ...
+  const todayMenuData = [
+    { day: 0, menu: ['Nasi Putih', 'Ayam Semur', 'Sayur Asem', 'Pisang Mas', 'Susu UHT'] },
+    { day: 1, menu: ['Nasi Putih', 'Telur Dadar Slice', 'Sayur Sop', 'Pisang Mas', 'Susu UHT Plain'] },
+    { day: 2, menu: ['Nasi Putih', 'Ayam Goreng Fillet', 'Tumis Bayam', 'Jeruk Manis', 'Susu UHT Plain'] },
+    { day: 3, menu: ['Nasi Merah', 'Ikan Goreng Tepung', 'Sayur Bayam', 'Apel', 'Susu UHT Cokelat'] },
+    { day: 4, menu: ['Nasi Kuning', 'Tempe Goreng', 'Tumis Wortel & Buncis', 'Pisang Mas', 'Susu UHT Plain'] },
+    { day: 5, menu: ['Nasi Putih', 'Daging Semur', 'Sayur Asem', 'Semangka', 'Susu UHT Cokelat'] },
+    { day: 6, menu: ['Nasi Kuning', 'Bakso Ikan', 'Tumis Kangkung', 'Jeruk Manis', 'Susu UHT Cokelat'] },
+  ];
+  const todayMenu = todayMenuData.find(d => d.day === dayOfWeek)?.menu ?? ['Nasi Putih', 'Lauk Protein', 'Sayuran', 'Buah', 'Susu UHT'];
+  const menuCategories = [
+    { label: 'Karbohidrat', item: todayMenu[0] },
+    { label: 'Protein', item: todayMenu[1] },
+    { label: 'Sayuran', item: todayMenu[2] },
+    { label: 'Buah', item: todayMenu[3] },
+    { label: 'Tambahan', item: todayMenu[4] },
+  ];
+
+  const handleQrScan = () => {
+    setQrScanState('scanning');
+    setTimeout(() => {
+      setQrScanState('done');
+      setShowQrMenuModal(true);
+    }, 1800);
+  };
 
   // Register States
   const [showRegisterForm, setShowRegisterForm] = useState(false);
@@ -104,11 +156,20 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <button 
-              onClick={() => setActiveView('login')}
-              className="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+            {/* QR Scan Button (desktop click simulation) */}
+            <button
+              onClick={handleQrScan}
+              disabled={qrScanState === 'scanning'}
+              className="relative group px-8 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-lg transition-all flex items-center gap-3 shadow-sm overflow-hidden"
             >
-              Login Sistem Internal <ArrowRight className="w-5 h-5" />
+              {qrScanState === 'scanning' && (
+                <span className="absolute inset-0 flex items-center justify-center bg-blue-700">
+                  <ScanLine className="w-5 h-5 animate-bounce mr-2" />
+                  <span className="text-sm font-bold tracking-wider">Memindai QR...</span>
+                </span>
+              )}
+              <QrCode className="w-5 h-5 shrink-0" />
+              <span>Scan QR Menu Hari Ini</span>
             </button>
             <button 
               onClick={() => setShowRegisterForm(true)}
@@ -296,6 +357,86 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
               <p className="text-center text-sm font-medium text-slate-500">
                 Menu ini telah diaudit dan dipastikan memenuhi standar gizi (Lauk Protein, Nasi, Sayur, Buah, & Susu).
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* QR Menu Modal */}
+      {showQrMenuModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => { setShowQrMenuModal(false); setQrScanState('idle'); }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="p-5 border-b border-slate-100 bg-gradient-to-r from-blue-600 to-blue-700 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 bg-white/20 rounded-lg">
+                  <QrCode className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-sm">Menu Hari Ini Terverifikasi</h3>
+                  <p className="text-blue-100 text-[10px] font-medium">QR Code Terpindai • Sumber: BGN Pusat</p>
+                </div>
+              </div>
+              <button onClick={() => { setShowQrMenuModal(false); setQrScanState('idle'); }} className="text-white/70 hover:text-white p-1 hover:bg-white/20 rounded-lg transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {/* Date & School */}
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tanggal</div>
+                  <div className="text-sm font-bold text-slate-800 mt-0.5">{todayStr}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Penyedia (SPPG)</div>
+                  <div className="text-sm font-bold text-blue-700 mt-0.5">CV. Dapur Nusantara</div>
+                </div>
+              </div>
+
+              {/* Verified badge */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg mb-5">
+                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="text-xs font-bold text-emerald-700">Menu telah diverifikasi AI & memenuhi standar AKG Nasional BGN</span>
+              </div>
+
+              {/* Menu items */}
+              <div className="space-y-2.5">
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Komponen Menu Lengkap</div>
+                {menuCategories.map((cat) => (
+                  <div key={cat.label} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/40 transition-colors">
+                    <div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase">{cat.label}</div>
+                      <div className="text-sm font-bold text-slate-800">{cat.item}</div>
+                    </div>
+                    <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer Info */}
+              <div className="mt-5 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-start gap-2">
+                <Clock className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                <div className="text-[11px] text-blue-700 font-semibold leading-relaxed">
+                  Waktu distribusi terjadwal: <strong>07:00 – 08:00 WIB</strong>. Menu ini berlaku untuk hari ini dan akan diperbarui otomatis esok pagi.
+                </div>
+              </div>
+
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={() => { setShowQrMenuModal(false); setQrScanState('idle'); }}
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors text-sm"
+                >
+                  Tutup
+                </button>
+                <button
+                  onClick={() => setActiveView('login')}
+                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors text-sm flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <ArrowRight className="w-4 h-4" /> Login Sistem
+                </button>
+              </div>
             </div>
           </div>
         </div>

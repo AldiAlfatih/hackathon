@@ -41,6 +41,22 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
   const nutritionInputRef = useRef<HTMLInputElement>(null);
   const hygieneInputRef = useRef<HTMLInputElement>(null);
 
+  // --- Dynamic two-week schedule data (state so it can be updated) ---
+  const [menuScheduleData, setMenuScheduleData] = useState([
+    // Minggu 1
+    { id: 'w1d1', minggu: 'Minggu 1', hari: 'Senin',  tanggal: '11 Agustus 2026', karbohidrat: 'Nasi Putih',        protein: 'Telur Dadar Slice',          sayur: 'Sayur Sop',            buah: 'Pisang Mas',    tambahan: 'Susu UHT Plain 200ml',   status: 'Selesai' as const },
+    { id: 'w1d2', minggu: 'Minggu 1', hari: 'Selasa', tanggal: '12 Agustus 2026', karbohidrat: 'Nasi Putih',        protein: 'Ayam Goreng Fillet',         sayur: 'Tumis Bayam',          buah: 'Jeruk Manis',   tambahan: 'Susu UHT Plain 200ml',   status: 'Aktif' as const },
+    { id: 'w1d3', minggu: 'Minggu 1', hari: 'Rabu',   tanggal: '13 Agustus 2026', karbohidrat: 'Nasi Merah',        protein: 'Ikan Goreng Tepung',         sayur: 'Sayur Bayam',          buah: 'Apel',          tambahan: 'Susu UHT Cokelat 200ml', status: 'Akan Datang' as const },
+    { id: 'w1d4', minggu: 'Minggu 1', hari: 'Kamis',  tanggal: '14 Agustus 2026', karbohidrat: 'Nasi Kuning',       protein: 'Tempe Goreng',               sayur: 'Tumis Wortel & Buncis', buah: 'Pisang Mas',   tambahan: 'Susu UHT Plain 200ml',   status: 'Akan Datang' as const },
+    { id: 'w1d5', minggu: 'Minggu 1', hari: 'Jumat',  tanggal: '15 Agustus 2026', karbohidrat: 'Nasi Putih',        protein: 'Daging Semur',               sayur: 'Sayur Asem',           buah: 'Semangka',      tambahan: 'Susu UHT Cokelat 200ml', status: 'Akan Datang' as const },
+    // Minggu 2
+    { id: 'w2d1', minggu: 'Minggu 2', hari: 'Senin',  tanggal: '18 Agustus 2026', karbohidrat: 'Nasi Merah',        protein: 'Telur Rebus',                sayur: 'Sayur Sop',            buah: 'Jeruk Manis',   tambahan: 'Susu UHT Plain 200ml',   status: 'Akan Datang' as const },
+    { id: 'w2d2', minggu: 'Minggu 2', hari: 'Selasa', tanggal: '19 Agustus 2026', karbohidrat: 'Nasi Putih',        protein: 'Ayam Opor',                  sayur: 'Tumis Kangkung',       buah: 'Pisang Ambon',  tambahan: 'Susu UHT Cokelat 200ml', status: 'Akan Datang' as const },
+    { id: 'w2d3', minggu: 'Minggu 2', hari: 'Rabu',   tanggal: '20 Agustus 2026', karbohidrat: 'Nasi Kuning',       protein: 'Ikan Bakar',                 sayur: 'Sayur Lodeh',          buah: 'Apel',          tambahan: 'Susu UHT Plain 200ml',   status: 'Akan Datang' as const },
+    { id: 'w2d4', minggu: 'Minggu 2', hari: 'Kamis',  tanggal: '21 Agustus 2026', karbohidrat: 'Nasi Merah',        protein: 'Tahu Goreng',                sayur: 'Tumis Buncis',         buah: 'Semangka',      tambahan: 'Susu UHT Cokelat 200ml', status: 'Akan Datang' as const },
+    { id: 'w2d5', minggu: 'Minggu 2', hari: 'Jumat',  tanggal: '22 Agustus 2026', karbohidrat: 'Nasi Putih',        protein: 'Rendang Daging',             sayur: 'Sayur Asem',           buah: 'Jeruk Nipis',   tambahan: 'Susu UHT Plain 200ml',   status: 'Akan Datang' as const },
+  ]);
+
   // School list state
   const [schools, setSchools] = useState([
     { 
@@ -176,6 +192,31 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
       setHygieneState('analyzing');
       setTimeout(() => setHygieneState('done'), 2500);
     }, 1000);
+  };
+
+  // --- Upload time restriction for Live Guard ---
+  // Allowed windows: 02:00–03:00 (subuh) and 10:00–11:00
+  const UPLOAD_WINDOWS = [
+    { label: '02.00 – 03.00', startHour: 2, endHour: 3 },
+    { label: '10.00 – 11.00', startHour: 10, endHour: 11 },
+  ];
+
+  const isUploadAllowed = (): boolean => {
+    const now = new Date();
+    const h = now.getHours();
+    return UPLOAD_WINDOWS.some(w => h >= w.startHour && h < w.endHour);
+  };
+
+  const getNextWindow = (): string => {
+    const now = new Date();
+    const h = now.getHours();
+    const m = now.getMinutes();
+    for (const w of UPLOAD_WINDOWS) {
+      if (h < w.startHour || (h === w.startHour && m === 0)) {
+        return w.label;
+      }
+    }
+    return UPLOAD_WINDOWS[0].label + ' (besok)';
   };
 
   const breadcrumb = activeSubView === 'dashboard' ? 'Dashboard'
@@ -318,6 +359,96 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                 ))}
               </div>
             </div>
+
+            {/* BARCODE MOBIL ARMADA / CETAK STIKER QR MENU HARI INI */}
+            <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-xl shadow-md p-6 border border-blue-800">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-5">
+                  <div className="p-3 bg-white/10 rounded-2xl border border-white/20 shrink-0">
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin + '/?qr=menu' : '')}&bgcolor=ffffff&color=1e3a8a&margin=8`}
+                      alt="QR Barcode Mobil Distribusi"
+                      width={100}
+                      height={100}
+                      className="rounded-lg shadow"
+                    />
+                  </div>
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-bold uppercase tracking-wider mb-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      QR Barcode Mobil Armada Distribusi
+                    </div>
+                    <h3 className="text-lg font-heading font-bold text-white">Stiker Transparansi Menu Harian</h3>
+                    <p className="text-xs text-blue-200 mt-1 max-w-xl leading-relaxed">
+                      Wajib ditempel di bodi / kaca mobil armada pengiriman. Saat publik atau pihak sekolah meng-scan barcode ini dengan kamera HP, menu makanan hari ini akan langsung ditampilkan secara otomatis secara real-time.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0 w-full md:w-auto">
+                  <button
+                    onClick={() => {
+                      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                      const targetUrl = `${origin}/?qr=menu`;
+                      const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(targetUrl)}&bgcolor=ffffff&color=1e3a8a&margin=12`;
+                      const a = document.createElement('a');
+                      a.href = qrApi;
+                      a.download = `Stiker_QR_Mobil_Armada_SPPG.png`;
+                      a.target = '_blank';
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                    }}
+                    className="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-2 shadow"
+                  >
+                    <Upload className="w-4 h-4 rotate-180" />
+                    Download Stiker QR (.PNG)
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                      const targetUrl = `${origin}/?qr=menu`;
+                      const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(targetUrl)}&bgcolor=ffffff&color=1e3a8a&margin=10`;
+                      const printWin = window.open('', '_blank');
+                      if (printWin) {
+                        printWin.document.write(`
+                          <html>
+                            <head>
+                              <title>Cetak Stiker QR Mobil - ${loggedInVendor?.nama || 'SPPG'}</title>
+                              <style>
+                                body { font-family: sans-serif; text-align: center; padding: 40px; background: #f8fafc; }
+                                .box { border: 4px solid #1e3a8a; padding: 30px; border-radius: 24px; max-width: 380px; margin: 0 auto; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+                                h2 { color: #1e3a8a; font-size: 20px; margin-bottom: 4px; font-weight: 800; }
+                                p { color: #64748b; font-size: 11px; margin-top: 0; font-weight: bold; tracking: wide; }
+                                img { border-radius: 12px; margin: 15px 0; border: 2px solid #e2e8f0; }
+                                .vendor { font-size: 13px; font-weight: 800; color: #0f172a; margin-top: 5px; }
+                                .footer { font-size: 10px; font-weight: bold; color: #0284c7; margin-top: 15px; letter-spacing: 1px; }
+                              </style>
+                            </head>
+                            <body>
+                              <div class="box">
+                                <h2>TRANSPARANSI MENU MBG</h2>
+                                <p>SCAN UNTUK LIHAT MENU HARI INI</p>
+                                <img src="${qrApi}" width="260" height="260" />
+                                <div class="vendor">${loggedInVendor?.nama || 'CV. DAPUR NUSANTARA SEJAHTERA'}</div>
+                                <div class="footer">BADAN GIZI NASIONAL RI • KAWAL MBG</div>
+                              </div>
+                              <script>window.onload = () => { window.print(); }</script>
+                            </body>
+                          </html>
+                        `);
+                        printWin.document.close();
+                      }
+                    }}
+                    className="px-5 py-3 bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Cetak Ukuran Stiker (Print/PDF)
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -338,188 +469,172 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
             )}
 
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-              <div className="p-5 border-b border-slate-100 bg-slate-50">
-                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                  <Info className="w-4 h-4 text-blue-600" /> Syarat Verifikasi Penerbitan SPPG (AI OCR)
-                </h2>
-                <p className="text-xs text-slate-500 mt-1">Lengkapi dokumen persyaratan wajib di bawah untuk memproses verifikasi penerbitan izin SPPG Anda.</p>
-              </div>
-              
-              {/* Status Overview */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-slate-200">
-                {[
-                  { key: 'akta', label: 'Akta Pendirian Badan Usaha' },
-                  { key: 'nib', label: 'Nomor Induk Berusaha (NIB)' },
-                  { key: 'npwp', label: 'Nomor Pokok Wajib Pajak (NPWP)' },
-                  { key: 'proposal', label: 'Proposal Kerja Sama' },
-                  { key: 'logo', label: 'Logo Mitra' },
-                  { key: 'kontak', label: 'NIK & Kontak Perwakilan' },
-                  { key: 'lokasi', label: 'Lokasi & Kesiapan Bangunan' },
-                ].map((item, i) => {
-                  const docData = loggedInVendor?.dokumenPersyaratan?.[item.key];
-                  const docStatus = docData ? docData.status : 'Terverifikasi';
-                  const docColor = docStatus === 'Terverifikasi' ? 'emerald' : docStatus === 'Menunggu Verifikasi' ? 'blue' : 'amber';
-                  
-                  return (
-                    <div key={i} className="bg-white p-4">
-                      <div className="text-[11px] text-slate-500 font-bold mb-2 uppercase tracking-wider h-8 flex items-center leading-tight">{item.label}</div>
-                      <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border
-                        ${docColor === 'emerald' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
-                          docColor === 'blue' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                          'bg-amber-50 text-amber-700 border-amber-200'}`}>
-                        {docStatus}
-                      </span>
-                      {docData?.namaFile && (
-                        <div className="text-[9px] text-slate-400 mt-2 truncate font-mono" title={docData.namaFile}>
-                          📄 {docData.namaFile}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-                {/* Pad the 8th slot in the grid for balance */}
-                <div className="bg-slate-50/50 p-4 flex items-center justify-center border-l border-slate-100 hidden lg:flex">
-                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider text-center">Sinkronisasi Ke Database BGN</div>
+              <div className="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                    <Info className="w-4 h-4 text-blue-600" /> Syarat Verifikasi Penerbitan SPPG (AI OCR)
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">Lengkapi & perbarui dokumen persyaratan wajib di bawah untuk memproses verifikasi penerbitan izin SPPG Anda.</p>
                 </div>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200 uppercase">
+                  7 Dokumen Wajib
+                </span>
               </div>
 
-              <div className="p-6">
-                <div className="mb-4 text-xs font-bold text-slate-700 uppercase tracking-wider">Pilih & Upload Dokumen Baru</div>
-                <div className="p-5 rounded-lg border border-slate-200 bg-slate-50">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Pilih Dokumen yang Diupload</label>
-                      <select 
-                        value={selectedDocKey} 
-                        onChange={(e) => setSelectedDocKey(e.target.value)}
-                        className="w-full text-xs font-bold text-slate-800 bg-white border border-slate-300 rounded-lg p-2 outline-none"
-                      >
-                        <option value="akta">1. Akta Pendirian Badan Usaha</option>
-                        <option value="nib">2. Nomor Induk Berusaha (NIB) OSS</option>
-                        <option value="npwp">3. Nomor Pokok Wajib Pajak (NPWP)</option>
-                        <option value="proposal">4. Proposal Kerja Sama</option>
-                        <option value="logo">5. Logo Mitra SPPG</option>
-                        <option value="kontak">6. NIK & Kontak Perwakilan</option>
-                        <option value="lokasi">7. Lokasi & Kesiapan Bangunan</option>
-                      </select>
-                    </div>
+              {/* Hidden file input for triggering uploads per row */}
+              <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.jpg,.png" onChange={handleOcrUpload} />
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                    <tr>
+                      <th className="py-3 px-4 w-12 text-center">No</th>
+                      <th className="py-3 px-4">Nama Dokumen Persyaratan</th>
+                      <th className="py-3 px-4">File Berkas</th>
+                      <th className="py-3 px-4">Status Verifikasi</th>
+                      <th className="py-3 px-4 text-center">Perbarui Berkas</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {[
+                      { key: 'akta', name: 'Akta Pendirian Badan Usaha', desc: 'Surat Akta Notaris Pendirian PT/CV' },
+                      { key: 'nib', name: 'Nomor Induk Berusaha (NIB)', desc: 'Izin Usaha Berbasis Risiko OSS RBA' },
+                      { key: 'npwp', name: 'Nomor Pokok Wajib Pajak (NPWP)', desc: 'Kartu / Surat Keterangan NPWP Badan' },
+                      { key: 'proposal', name: 'Proposal Kerja Sama', desc: 'Proposal Kesiapan Dapur Pelayanan SPPG' },
+                      { key: 'logo', name: 'Logo Mitra SPPG', desc: 'Logo Resmi Badan Usaha / Dapur' },
+                      { key: 'kontak', name: 'NIK & Kontak Perwakilan', desc: 'KTP & Kontak Penanggung Jawab Dapur' },
+                      { key: 'lokasi', name: 'Lokasi & Kesiapan Bangunan', desc: 'Denah, Sertifikat & Foto Kesiapan Dapur' },
+                    ].map((item, idx) => {
+                      const docData = loggedInVendor?.dokumenPersyaratan?.[item.key];
+                      const docStatus = docData ? docData.status : 'Terverifikasi';
+                      const docColor = docStatus === 'Terverifikasi' ? 'emerald' : docStatus === 'Menunggu Verifikasi' ? 'blue' : 'amber';
+                      const fileName = docData?.namaFile || `${item.key}_berkas_resmi_v1.pdf`;
+
+                      return (
+                        <tr key={item.key} className="hover:bg-slate-50 transition-colors">
+                          <td className="py-3.5 px-4 text-center font-bold text-slate-500">{idx + 1}</td>
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-slate-800 text-xs">{item.name}</div>
+                            <div className="text-[10px] text-slate-400 mt-0.5">{item.desc}</div>
+                          </td>
+                          <td className="py-3.5 px-4 font-mono text-[11px]">
+                            <span className="flex items-center gap-1.5 text-slate-600">
+                              <FileText className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                              <span className="truncate max-w-[200px]" title={fileName}>{fileName}</span>
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border
+                              ${docColor === 'emerald' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
+                                docColor === 'blue' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                              {docStatus}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 text-center">
+                            <button
+                              onClick={() => {
+                                setSelectedDocKey(item.key);
+                                fileInputRef.current?.click();
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-600 border border-blue-200 hover:border-blue-600 text-blue-600 hover:text-white text-xs font-bold rounded-lg transition-all shadow-sm"
+                            >
+                              <Upload className="w-3.5 h-3.5" />
+                              Perbarui Berkas
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Processing or AI OCR Result indicator under the table */}
+              {ocrState === 'processing' && (
+                <div className="p-6 border-t border-slate-100 bg-slate-50 flex flex-col items-center justify-center gap-3">
+                  <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">Mengekstrak Data OCR & Memperbarui Berkas...</div>
+                </div>
+              )}
+
+              {ocrState === 'done' && ocrResult && (
+                <div className="p-6 border-t border-slate-100 bg-emerald-50/70 animate-in fade-in duration-300">
+                  <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4" /> Dokumen Berhasil Diperbarui & Diverifikasi (AI OCR)
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl border border-emerald-200 shadow-sm">
+                    {[
+                      ['Nomor Registrasi', ocrResult.noSurat],
+                      ['Penerbit Dokumen', ocrResult.penerbit],
+                      ['Masa Berlaku', ocrResult.masaBerlaku],
+                      ['Sumber Validasi', 'Sistem Informasi BGN / OSS'],
+                    ].map(([l, v]) => (
+                      <div key={l}>
+                        <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">{l}</div>
+                        <div className="text-slate-900 font-bold text-xs">{v}</div>
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <FileText className="w-6 h-6 text-slate-400" />
+                  {/* AI Metrics Additions */}
+                  <div className="mt-4 pt-4 border-t border-emerald-200/50">
+                    <div className="flex items-center gap-2 mb-3">
+                      <BrainCircuit className="w-4 h-4 text-emerald-600" />
+                      <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Hasil Analisis Smart Licensing AI</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="bg-white/80 p-3 rounded-lg border border-emerald-100 shadow-sm">
+                        <div className="text-[10px] text-emerald-600 font-bold uppercase mb-1 flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3" /> Confidence Score
+                        </div>
+                        <div className="text-lg font-mono font-bold text-slate-800">99.1%</div>
+                        <div className="text-[9px] text-slate-500 mt-1">Akurasi pembacaan karakter OCR tingkat tinggi.</div>
+                      </div>
+                      <div className="bg-white/80 p-3 rounded-lg border border-emerald-100 shadow-sm">
+                        <div className="text-[10px] text-emerald-600 font-bold uppercase mb-1 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Status Keaslian
+                        </div>
+                        <div className="text-xs font-bold text-emerald-700">Valid & Terverifikasi</div>
+                        <div className="text-[9px] text-slate-500 mt-1">Sesuai dengan database master OSS & BGN.</div>
+                      </div>
+                      <div className="bg-white/80 p-3 rounded-lg border border-emerald-100 shadow-sm">
+                        <div className="text-[10px] text-emerald-600 font-bold uppercase mb-1 flex items-center gap-1">
+                          <Link className="w-3 h-3" /> Blockchain Hash
+                        </div>
+                        <div className="text-xs font-mono font-bold text-slate-700 truncate" title="0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069">0x7f83b165...6d9069</div>
+                        <div className="text-[9px] text-slate-500 mt-1">Bukti verifikasi tidak dapat diubah (immutable).</div>
+                      </div>
+                    </div>
+                    <div className="mt-3 bg-white/80 p-3 rounded-lg border border-emerald-100 flex items-start gap-2 text-xs">
+                      <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                       <div>
-                        <div className="font-bold text-slate-800 text-sm">
-                          {selectedDocKey === 'akta' ? 'Akta Pendirian Badan Usaha'
-                           : selectedDocKey === 'nib' ? 'Nomor Induk Berusaha (NIB)'
-                           : selectedDocKey === 'npwp' ? 'Nomor Pokok Wajib Pajak (NPWP)'
-                           : selectedDocKey === 'proposal' ? 'Proposal Kerja Sama'
-                           : selectedDocKey === 'logo' ? 'Logo Mitra SPPG'
-                           : selectedDocKey === 'kontak' ? 'NIK & Kontak Perwakilan'
-                           : 'Lokasi & Kesiapan Bangunan'}
-                        </div>
-                        <div className="text-[10px] text-slate-500 font-medium">
-                          Status saat ini: <span className="font-bold uppercase text-slate-700">{loggedInVendor?.dokumenPersyaratan?.[selectedDocKey]?.status || 'Terverifikasi'}</span>
-                        </div>
+                        <div className="text-[10px] text-blue-800 font-bold uppercase mb-0.5">Catatan AI Cross-Reference</div>
+                        <div className="text-slate-700 font-medium">Dokumen berhasil diperbarui dan disinkronisasi ke sistem BGN. Foto kesiapan bangunan terverifikasi memiliki kapasitas memadai untuk melayani target porsi harian.</div>
                       </div>
                     </div>
                   </div>
-
-                  {ocrState === 'idle' && (
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full py-8 flex flex-col items-center gap-3 rounded-lg bg-white border-2 border-dashed border-slate-300 hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                  <div className="mt-4 flex justify-end">
+                    <button 
+                      onClick={() => {
+                        setOcrState('idle');
+                        setOcrResult(null);
+                      }} 
+                      className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-lg transition-colors"
                     >
-                      <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.jpg,.png" onChange={handleOcrUpload} />
-                      <Upload className="w-6 h-6 text-blue-500" />
-                      <span className="text-sm font-bold text-slate-700 uppercase tracking-wider">Pilih File / Foto Dokumen</span>
-                      <span className="text-xs text-slate-400">PDF, JPG, atau PNG — maks. 10MB</span>
+                      Tutup Notifikasi Verifikasi
                     </button>
-                  )}
-
-                  {ocrState === 'processing' && (
-                    <div className="py-8 flex flex-col items-center gap-4 bg-white rounded-lg border border-slate-200">
-                      <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-                      <div className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Mengekstrak Data OCR & Mengunggah...</div>
-                    </div>
-                  )}
-
-                  {ocrState === 'done' && ocrResult && (
-                    <div className="mt-4 p-4 rounded-lg bg-emerald-50 border border-emerald-200 shadow-sm animate-in fade-in duration-300">
-                      <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4" /> Dokumen Berhasil Diunggah & Diverifikasi (AI OCR)
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        {[
-                          ['Nomor Registrasi', ocrResult.noSurat],
-                          ['Penerbit Dokumen', ocrResult.penerbit],
-                          ['Masa Berlaku', ocrResult.masaBerlaku],
-                          ['Sumber Validasi', 'Sistem Informasi BGN / OSS'],
-                        ].map(([l, v]) => (
-                          <div key={l}>
-                            <div className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider mb-1">{l}</div>
-                            <div className="text-slate-900 font-bold text-sm">{v}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* AI Metrics Additions */}
-                      <div className="mt-5 pt-5 border-t border-emerald-200/50">
-                        <div className="flex items-center gap-2 mb-3">
-                          <BrainCircuit className="w-4 h-4 text-emerald-600" />
-                          <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Hasil Analisis Smart Licensing AI</span>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <div className="bg-white/50 p-3 rounded border border-emerald-100">
-                            <div className="text-[10px] text-emerald-600 font-bold uppercase mb-1 flex items-center gap-1">
-                              <ShieldCheck className="w-3 h-3" /> Confidence Score
-                            </div>
-                            <div className="text-lg font-mono font-bold text-slate-800">99.1%</div>
-                            <div className="text-[9px] text-slate-500 mt-1">Akurasi pembacaan karakter OCR tingkat tinggi.</div>
-                          </div>
-                          <div className="bg-white/50 p-3 rounded border border-emerald-100">
-                            <div className="text-[10px] text-emerald-600 font-bold uppercase mb-1 flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3" /> Status Keaslian
-                            </div>
-                            <div className="text-sm font-bold text-emerald-700">Valid & Terverifikasi</div>
-                            <div className="text-[9px] text-slate-500 mt-1">Sesuai dengan database master OSS & BGN.</div>
-                          </div>
-                          <div className="bg-white/50 p-3 rounded border border-emerald-100">
-                            <div className="text-[10px] text-emerald-600 font-bold uppercase mb-1 flex items-center gap-1">
-                              <Link className="w-3 h-3" /> Blockchain Hash
-                            </div>
-                            <div className="text-xs font-mono font-bold text-slate-700 truncate" title="0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069">0x7f83b165...6d9069</div>
-                            <div className="text-[9px] text-slate-500 mt-1">Bukti verifikasi tidak dapat diubah (immutable).</div>
-                          </div>
-                        </div>
-                        <div className="mt-3 bg-white/50 p-3 rounded border border-emerald-100 flex items-start gap-2">
-                          <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-                          <div>
-                            <div className="text-[10px] text-blue-800 font-bold uppercase mb-0.5">Catatan AI Cross-Reference</div>
-                            <div className="text-xs text-slate-700 font-medium">Koordinat titik SPPG cocok dengan data pengajuan fisik. Foto kesiapan bangunan terverifikasi memiliki kapasitas memadai untuk melayani target porsi harian.</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-4 flex justify-end">
-                        <button 
-                          onClick={() => {
-                            setOcrState('idle');
-                            setOcrResult(null);
-                          }} 
-                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition-colors"
-                        >Unggah Dokumen Lain</button>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}
 
         {/* NUTRITION CENTER */}
         {activeSubView === 'nutrition' && (
-          <div className="grid lg:grid-cols-2 gap-6 pb-6">
+          <div className="flex flex-col gap-6 pb-6">
+          <div className="grid lg:grid-cols-2 gap-6">
             {/* Planned Menu */}
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col overflow-hidden">
               <div className="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
@@ -546,7 +661,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                           : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
-                      🗓️ Siklus I (Senin - Rabu)
+                      🗓️ Siklus 1 – Minggu Pertama
                     </button>
                     <button
                       onClick={() => {
@@ -559,44 +674,32 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                           : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
-                      🗓️ Siklus II (Kamis - Jumat)
+                      🗓️ Siklus 2 – Minggu Kedua
                     </button>
                   </div>
 
                   <div className="space-y-3">
-                    {menuSiklus === 'siklus1' ? (
-                      [
-                        { name: 'Nasi Putih', type: 'Karbohidrat Utama' },
-                        { name: 'Telur Dadar Slice', type: 'Protein Hewani' },
-                        { name: 'Sayur Sop / Bayam', type: 'Serat & Vitamin' },
-                        { name: 'Buah Pisang Mas', type: 'Suplemen & Kalium' },
-                        { name: 'Susu UHT Plain 200ml', type: 'Kalsium Tambahan' },
-                      ].map((item) => (
-                        <div key={item.name} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200/60 hover:bg-slate-100/50 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></div>
-                            <span className="text-sm font-bold text-slate-700">{item.name}</span>
-                          </div>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{item.type}</span>
+                    {(menuSiklus === 'siklus1' ? [
+                      { name: menuScheduleData[0].karbohidrat, type: 'Karbohidrat Utama', dot: 'bg-blue-500' },
+                      { name: menuScheduleData[0].protein,     type: 'Protein Hewani',    dot: 'bg-blue-500' },
+                      { name: menuScheduleData[0].sayur,       type: 'Serat & Vitamin',   dot: 'bg-blue-500' },
+                      { name: menuScheduleData[0].buah,        type: 'Suplemen & Kalium', dot: 'bg-blue-500' },
+                      { name: menuScheduleData[0].tambahan,    type: 'Kalsium Tambahan',  dot: 'bg-blue-500' },
+                    ] : [
+                      { name: menuScheduleData[5].karbohidrat, type: 'Karbohidrat Utama', dot: 'bg-emerald-500' },
+                      { name: menuScheduleData[5].protein,     type: 'Protein Hewani',    dot: 'bg-emerald-500' },
+                      { name: menuScheduleData[5].sayur,       type: 'Serat & Vitamin',   dot: 'bg-emerald-500' },
+                      { name: menuScheduleData[5].buah,        type: 'Suplemen & Kalium', dot: 'bg-emerald-500' },
+                      { name: menuScheduleData[5].tambahan,    type: 'Kalsium Tambahan',  dot: 'bg-emerald-500' },
+                    ]).map((item) => (
+                      <div key={item.name} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200/60 hover:bg-slate-100/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-2 h-2 rounded-full ${item.dot} shrink-0`}></div>
+                          <span className="text-sm font-bold text-slate-700">{item.name}</span>
                         </div>
-                      ))
-                    ) : (
-                      [
-                        { name: 'Nasi Merah / Kuning', type: 'Karbohidrat Utama' },
-                        { name: 'Ayam Goreng Fillet Tepung', type: 'Protein Hewani' },
-                        { name: 'Tumis Wortel & Buncis', type: 'Serat & Vitamin' },
-                        { name: 'Buah Apel / Jeruk Manis', type: 'Suplemen & Kalium' },
-                        { name: 'Susu UHT Cokelat 200ml', type: 'Kalsium Tambahan' },
-                      ].map((item) => (
-                        <div key={item.name} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200/60 hover:bg-slate-100/50 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-                            <span className="text-sm font-bold text-slate-700">{item.name}</span>
-                          </div>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{item.type}</span>
-                        </div>
-                      ))
-                    )}
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{item.type}</span>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Adjustment Request Button and Pending Display */}
@@ -715,6 +818,105 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
               </div>
             </div>
           </div>
+
+          {/* ====== NEW: Jadwal Menu Dua Mingguan – full-width card ====== */}
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-blue-600" /> 3. Jadwal Menu Dua Mingguan
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Daftar menu makan bergizi yang berlaku selama dua minggu, mulai Senin hingga Jumat.
+                </p>
+              </div>
+              <span className="self-start sm:self-center text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 uppercase whitespace-nowrap">
+                Siklus Aktif
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left" style={{ minWidth: '900px' }}>
+                <thead className="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                  <tr>
+                    <th className="py-3 px-4 whitespace-nowrap">Minggu</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Hari</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Tanggal</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Karbohidrat</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Protein</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Sayur</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Buah</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Tambahan</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Status</th>
+                    <th className="py-3 px-4 whitespace-nowrap">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {menuScheduleData.map((row, idx) => {
+                    const isFirstOfGroup = idx === 0 || menuScheduleData[idx - 1].minggu !== row.minggu;
+                    const groupRows = menuScheduleData.filter(r => r.minggu === row.minggu).length;
+                    const statusBadge =
+                      row.status === 'Aktif'
+                        ? 'bg-blue-50 text-blue-700 border-blue-200'
+                        : row.status === 'Selesai'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-amber-50 text-amber-700 border-amber-200';
+                    return (
+                      <tr key={row.id} className="hover:bg-slate-50 transition-colors">
+                        {isFirstOfGroup && (
+                          <td
+                            rowSpan={groupRows}
+                            className="py-3 px-4 font-bold text-slate-800 align-middle border-r border-slate-100 bg-slate-50/60 whitespace-nowrap"
+                          >
+                            <span className="inline-flex items-center gap-1.5">
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${ row.minggu === 'Minggu 1' ? 'bg-blue-500' : 'bg-emerald-500' }`}></span>
+                              {row.minggu}
+                            </span>
+                          </td>
+                        )}
+                        <td className="py-3 px-4 font-bold text-slate-700 whitespace-nowrap">{row.hari}</td>
+                        <td className="py-3 px-4 font-mono text-slate-500 whitespace-nowrap">{row.tanggal}</td>
+                        <td className="py-3 px-4 text-slate-700">{row.karbohidrat}</td>
+                        <td className="py-3 px-4 text-slate-700">{row.protein}</td>
+                        <td className="py-3 px-4 text-slate-700">{row.sayur}</td>
+                        <td className="py-3 px-4 text-slate-700">{row.buah}</td>
+                        <td className="py-3 px-4 text-slate-700">{row.tambahan}</td>
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${statusBadge}`}>
+                            {row.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <button
+                              className="px-2.5 py-1 text-[10px] font-bold rounded-md bg-blue-50 border border-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors"
+                              onClick={() => alert(`Detail menu ${row.hari}, ${row.tanggal}`)}
+                            >
+                              Lihat Detail
+                            </button>
+                            <button
+                              className="px-2.5 py-1 text-[10px] font-bold rounded-md bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-600 hover:text-white transition-colors"
+                              onClick={() => {
+                                const newKarbo = prompt(`Ubah Karbohidrat untuk ${row.hari} (${row.tanggal}):`, row.karbohidrat);
+                                if (newKarbo !== null) {
+                                  setMenuScheduleData(prev => prev.map(r => r.id === row.id ? { ...r, karbohidrat: newKarbo } : r));
+                                }
+                              }}
+                            >
+                              Ubah Menu
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {/* ====== END: Jadwal Menu Dua Mingguan ====== */}
+
+          </div>
         )}
 
         {/* HYGIENE COMPLIANCE / LIVE GUARD */}
@@ -722,24 +924,74 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
           <div className="w-full space-y-6 pb-6">
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
               <div className="p-5 border-b border-slate-100 bg-slate-50">
-                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                  <Camera className="w-4 h-4 text-blue-600" /> Live Guard Monitoring (Hygiene AI)
-                </h2>
-                <p className="text-xs text-slate-500 mt-1">Upload foto/video dapur operasional harian. AI akan memverifikasi APD dan standar kebersihan.</p>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div>
+                    <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                      <Camera className="w-4 h-4 text-blue-600" /> Live Guard Monitoring (Hygiene AI)
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-1">Upload foto/video dapur operasional harian. AI akan memverifikasi APD dan standar kebersihan.</p>
+                  </div>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Jam Upload Diizinkan</div>
+                    {UPLOAD_WINDOWS.map(w => (
+                      <span key={w.label} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border ${
+                        isUploadAllowed() && new Date().getHours() >= w.startHour && new Date().getHours() < w.endHour
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-slate-100 text-slate-500 border-slate-200'
+                      }`}>
+                        <Clock className="w-3 h-3" />
+                        {w.label}
+                        {isUploadAllowed() && new Date().getHours() >= w.startHour && new Date().getHours() < w.endHour && (
+                          <span className="ml-1 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div className="p-6 flex flex-col md:flex-row gap-6">
                 {hygieneState === 'idle' && (
-                  <button 
-                    onClick={() => hygieneInputRef.current?.click()}
-                    className="flex-1 flex flex-col items-center justify-center gap-4 bg-slate-50 hover:bg-blue-50 border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl transition-all group min-h-[200px]"
-                  >
-                    <input type="file" className="hidden" ref={hygieneInputRef} onChange={handleHygieneUpload} accept="image/*,video/*" />
-                    <Camera className="w-8 h-8 text-blue-500 group-hover:scale-110 transition-transform" />
-                    <div className="text-center">
-                      <div className="text-sm font-bold text-slate-700 uppercase tracking-wider">Ambil Foto / Video Dapur</div>
-                      <div className="text-[11px] text-slate-500 mt-1">Sorot area persiapan makanan dan staff</div>
+                  isUploadAllowed() ? (
+                    <button 
+                      onClick={() => hygieneInputRef.current?.click()}
+                      className="flex-1 flex flex-col items-center justify-center gap-4 bg-slate-50 hover:bg-blue-50 border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl transition-all group min-h-[200px]"
+                    >
+                      <input type="file" className="hidden" ref={hygieneInputRef} onChange={handleHygieneUpload} accept="image/*,video/*" />
+                      <Camera className="w-8 h-8 text-blue-500 group-hover:scale-110 transition-transform" />
+                      <div className="text-center">
+                        <div className="text-sm font-bold text-slate-700 uppercase tracking-wider">Ambil Foto / Video Dapur</div>
+                        <div className="text-[11px] text-slate-500 mt-1">Sorot area persiapan makanan dan staff</div>
+                      </div>
+                    </button>
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center gap-4 min-h-[220px] bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="p-3 rounded-full bg-slate-100 border border-slate-200">
+                          <Lock className="w-7 h-7 text-slate-400" />
+                        </div>
+                        <div className="text-center">
+                          <div className="text-sm font-bold text-slate-700 uppercase tracking-wider">Upload Foto Terkunci</div>
+                          <div className="text-[11px] text-slate-500 mt-1 max-w-[260px] leading-relaxed">
+                            Upload hanya diizinkan pada jam operasional yang ditentukan BGN.
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2 w-full max-w-[240px]">
+                          {UPLOAD_WINDOWS.map(w => (
+                            <div key={w.label} className="flex items-center justify-between px-3.5 py-2 rounded-lg bg-white border border-slate-200 shadow-sm">
+                              <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                                <Clock className="w-3.5 h-3.5 text-blue-500" />
+                                {w.label}
+                              </div>
+                              <span className="text-[10px] font-bold text-slate-400 uppercase">Diizinkan</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="text-[10px] font-semibold text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-lg">
+                          ⏰ Jadwal berikutnya: <span className="font-bold">{getNextWindow()}</span>
+                        </div>
+                      </div>
                     </div>
-                  </button>
+                  )
                 )}
                 {(hygieneState === 'uploading' || hygieneState === 'analyzing') && (
                   <div className="flex-1 flex flex-col items-center justify-center gap-4 bg-slate-50 rounded-xl border border-slate-200 min-h-[200px]">
