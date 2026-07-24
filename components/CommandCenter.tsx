@@ -6,7 +6,7 @@ import {
   Filter, Search, ChevronDown, ChevronUp, RefreshCw, Bell,
   MapPin, BarChart3, Activity, Shield, ChevronRight, X,
   Package, DollarSign, Clock, FileText, Database, Server,
-  Lock, Siren, Microscope, Check, XCircle, AlertOctagon, ImageIcon, User, Building2, Ghost, BrainCircuit
+  Lock, Siren, Microscope, Check, XCircle, AlertOctagon, ImageIcon, User, Building2, Ghost, BrainCircuit, Banknote, Send
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -81,7 +81,40 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
   const [escalationStatus, setEscalationStatus] = useState<Record<string, EscalationStatus>>({});
   const [riskBreakdownVendor, setRiskBreakdownVendor] = useState<Vendor | null>(null);
 
-  // Complaint Management States are now handled via KawalApp props
+  // Penyaluran Dana Berkala (Jadwal Setiap Hari Senin)
+  const [showDisbursementModal, setShowDisbursementModal] = useState(false);
+  const [disbursementForm, setDisbursementForm] = useState({
+    sppgId: 'v1',
+    periode: 'Senin, 17 Agustus 2026',
+    porsi: 22500,
+    catatan: 'Penyaluran dana operasional berkala mingguan (Hari Senin)'
+  });
+  const [disbursements, setDisbursements] = useState([
+    { id: 'DISB-20260810-01', sppgId: 'v1', sppgNama: 'CV. Dapur Nusantara Sejahtera', periode: 'Senin, 10 Ags 2026', porsi: 22500, nominal: 337500000, bank: 'Bank Mandiri (152009988112)', status: 'Disalurkan (Senin)' },
+    { id: 'DISB-20260810-02', sppgId: 'v2', sppgNama: 'PT. Parepare Gizi Mandiri', periode: 'Senin, 10 Ags 2026', porsi: 10500, nominal: 152250000, bank: 'Bank BRI (001201099238)', status: 'Disalurkan (Senin)' },
+    { id: 'DISB-20260810-03', sppgId: 'v3', sppgNama: 'CV. Bacukiki Berkah Pangan', periode: 'Senin, 10 Ags 2026', porsi: 22500, nominal: 337500000, bank: 'Bank BNI (0891234771)', status: 'Disalurkan (Senin)' },
+    { id: 'DISB-20260817-01', sppgId: 'v4', sppgNama: 'UD. Soreang Sehat Catering', periode: 'Senin, 17 Ags 2026', porsi: 12400, nominal: 183520000, bank: 'Bank Mandiri (152008877119)', status: 'Terjadwal (Senin Depan)' },
+    { id: 'DISB-20260817-02', sppgId: 'v5', sppgNama: 'PT. Sinar Lumpue Pangan', periode: 'Senin, 17 Ags 2026', porsi: 8750, nominal: 131250000, bank: 'Bank Syariah Indonesia (712399812)', status: 'Terjadwal (Senin Depan)' },
+  ]);
+
+  const handleCreateDisbursement = (e: React.FormEvent) => {
+    e.preventDefault();
+    const vendor = vendors.find(v => v.id === disbursementForm.sppgId) || vendors[0];
+    const nominal = disbursementForm.porsi * vendor.hargaSatuan;
+    const newDisb = {
+      id: `DISB-${Date.now().toString().slice(-8)}`,
+      sppgId: vendor.id,
+      sppgNama: vendor.nama,
+      periode: disbursementForm.periode,
+      porsi: disbursementForm.porsi,
+      nominal: nominal,
+      bank: 'Bank Mandiri (152009988112)',
+      status: 'Disalurkan (Senin)'
+    };
+    setDisbursements(prev => [newDisb, ...prev]);
+    showToast(`Dana Rp ${nominal.toLocaleString('id-ID')} berhasil disalurkan ke ${vendor.nama} untuk jadwal ${disbursementForm.periode}!`, 'success');
+    setShowDisbursementModal(false);
+  };
 
   // Toast notification
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'warning' | 'danger' } | null>(null);
@@ -297,54 +330,120 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
       {/* ========= OVERVIEW / COMMAND CENTER MAIN ========= */}
       {activeSubView === 'overview' && <>
 
-      {/* KPI Cards */}
+      {/* Notifikasi Risiko Real-Time Banner */}
+      <div className="bg-gradient-to-r from-amber-500/10 via-red-500/10 to-blue-500/10 border border-amber-200/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0">
+            <Bell className="w-5 h-5 text-amber-700 animate-bounce" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black uppercase tracking-wider text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded">
+                Notifikasi Risiko Real-Time
+              </span>
+              <span className="text-[11px] text-slate-500 font-mono">Peringatan Otomatis AI Command Center</span>
+            </div>
+            <p className="text-xs font-medium text-slate-700 mt-1">
+              Terdeteksi <strong>{vendors.filter(v => v.anomali.length > 0).length} SPPG dengan anomali aktif</strong> dan <strong>{complaints.filter(c => c.status === 'Open').length} aduan baru</strong> yang memerlukan inspeksi mendadak hari ini.
+            </p>
+          </div>
+        </div>
+        <button 
+          onClick={() => setActiveSubView('risk')}
+          className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm flex items-center gap-1.5"
+        >
+          <Shield className="w-3.5 h-3.5" /> Buka Risk Monitoring
+        </button>
+      </div>
+
+      {/* KPI Cards Grid - 8 Key Indicators */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           {
-            label: 'Distribusi Hari Ini',
-            value: statsData.distribusiHariIni.toLocaleString('id-ID'),
-            sub: `${pctRealisasi}% Target Distribusi`,
-            icon: Package,
+            label: 'Jumlah Total SPPG',
+            value: statsData.totalVendor.toLocaleString('id-ID'),
+            sub: 'Terdaftar di Database BGN',
+            icon: Building2,
             color: 'text-blue-600',
             bg: 'bg-blue-50',
+            trend: '+12 Bulan Ini',
+            up: true,
+          },
+          {
+            label: 'SPPG Aktif / Nonaktif',
+            value: `${statsData.vendorAktif.toLocaleString('id-ID')} / ${(statsData.totalVendor - statsData.vendorAktif).toLocaleString('id-ID')}`,
+            sub: 'Dapur Beroperasi & Memenuhi Izin',
+            icon: CheckCircle2,
+            color: 'text-emerald-600',
+            bg: 'bg-emerald-50',
+            trend: '84% Aktif',
+            up: true,
+          },
+          {
+            label: 'Tingkat Kepatuhan',
+            value: '94.2%',
+            sub: 'Rata-rata Kepatuhan Nasional',
+            icon: Shield,
+            color: 'text-indigo-600',
+            bg: 'bg-indigo-50',
+            trend: '+1.5%',
+            up: true,
+          },
+          {
+            label: 'SPPG Risiko Tinggi',
+            value: `${vendors.filter(v => v.risikoSkor < 50).length} Dapur`,
+            sub: 'Perlu Pengawasan & Audit',
+            icon: AlertOctagon,
+            color: 'text-red-600',
+            bg: 'bg-red-50',
+            trend: 'Perlu Inspeksi',
+            up: false,
+          },
+          {
+            label: 'Aduan Aktif',
+            value: complaints.filter(c => c.status !== 'Resolved').length.toString(),
+            sub: `${complaints.filter(c => c.status === 'Investigating').length} Dalam Investigasi`,
+            icon: AlertTriangle,
+            color: 'text-amber-600',
+            bg: 'bg-amber-50',
+            trend: '-3 Kasus',
+            up: true,
+          },
+          {
+            label: 'Distribusi Bermasalah',
+            value: statsData.anomaliTerdeteksi.toString(),
+            sub: 'Insiden Keterlambatan / Porsi',
+            icon: Clock,
+            color: 'text-orange-600',
+            bg: 'bg-orange-50',
+            trend: '2 Kasus Kritis',
+            up: false,
+          },
+          {
+            label: 'Distribusi Hari Ini',
+            value: statsData.distribusiHariIni.toLocaleString('id-ID'),
+            sub: `${pctRealisasi}% Target Harian Terpenuhi`,
+            icon: Package,
+            color: 'text-cyan-600',
+            bg: 'bg-cyan-50',
             trend: '+3.2%',
             up: true,
           },
           {
-            label: 'Nilai Ekonomi Berputar',
-            value: statsData.nilaiEkonomi,
-            sub: 'Pembayaran terverifikasi',
-            icon: DollarSign,
-            color: 'text-emerald-600',
-            bg: 'bg-emerald-50',
-            trend: '+2.1%',
-            up: true,
-          },
-          {
-            label: 'Insiden / Anomali',
-            value: statsData.anomaliTerdeteksi.toString(),
-            sub: `${anomaliCount} Memerlukan atensi`,
-            icon: AlertTriangle,
-            color: 'text-red-600',
-            bg: 'bg-red-50',
-            trend: '+2 Kasus',
+            label: 'Notifikasi Risiko',
+            value: `${vendors.filter(v => v.anomali.length > 0).length} Alert`,
+            sub: 'Peringatan Otomatis Terdeteksi',
+            icon: Bell,
+            color: 'text-purple-600',
+            bg: 'bg-purple-50',
+            trend: 'Real-Time',
             up: false,
-          },
-          {
-            label: 'Verifikasi Menunggu',
-            value: statsData.verifikasiPending.toString(),
-            sub: `Dari total ${statsData.totalVendor} vendor`,
-            icon: FileText,
-            color: 'text-amber-600',
-            bg: 'bg-amber-50',
-            trend: '-12 Antrean',
-            up: true,
           },
         ].map((kpi) => {
           const Icon = kpi.icon;
           return (
-            <div key={kpi.label} className="bg-white border border-slate-200 p-5 rounded-xl shadow-sm flex flex-col justify-between">
-              <div className="flex items-start justify-between mb-4">
+            <div key={kpi.label} className="bg-white border border-slate-200 p-5 rounded-xl shadow-sm flex flex-col justify-between hover:border-blue-300 transition-all">
+              <div className="flex items-start justify-between mb-3">
                 <div className={`p-2 rounded-lg ${kpi.bg}`}>
                   <Icon className={`w-5 h-5 ${kpi.color}`} />
                 </div>
@@ -355,8 +454,8 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
               </div>
               <div>
                 <div className="text-2xl font-bold text-slate-900 text-data tracking-tight mb-1">{kpi.value}</div>
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{kpi.label}</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">{kpi.sub}</div>
+                <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">{kpi.label}</div>
+                <div className="text-[11px] text-slate-500 mt-0.5">{kpi.sub}</div>
               </div>
             </div>
           );
@@ -664,73 +763,202 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
       {/* ========= RISK MONITORING SUB-PAGE ========= */}
       {activeSubView === 'risk' && (
         <div className="space-y-6">
-          <div>
-            <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">Risk Monitoring Dashboard</h1>
-            <p className="text-sm text-slate-500 mt-1">Tekan <strong>Eskalasi</strong> untuk menangguhkan operasional SPPG dan melimpahkan kasus ke tim audit BGN.</p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">Compliance & Risk Monitoring Dashboard</h1>
+              <p className="text-sm text-slate-500 mt-1">
+                Matriks evaluasi kepatuhan holistik (Lisensi, SOP, Gizi, Anggaran) dan rekomendasi tindak lanjut otomatis berbasis AI.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-xl">
+              <Shield className="w-4 h-4 text-blue-600" />
+              <span className="text-xs font-bold text-blue-900">Penilaian Otomatis BGN Audit Engine</span>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          {/* Compliance & Risk KPI Summary */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'SPPG Risiko Tinggi', value: vendors.filter(v=>v.risikoSkor<50).length, color: 'text-red-600', border: 'border-red-200' },
-              { label: 'SPPG Risiko Sedang', value: vendors.filter(v=>v.risikoSkor>=50&&v.risikoSkor<80).length, color: 'text-amber-600', border: 'border-amber-200' },
-              { label: 'SPPG Aman', value: vendors.filter(v=>v.risikoSkor>=80).length, color: 'text-emerald-600', border: 'border-emerald-200' },
+              { label: 'Rata-rata Overall Score', value: '91.8 / 100', color: 'text-indigo-600', border: 'border-indigo-200', sub: 'Standar Kepatuhan Nasional' },
+              { label: 'SPPG Risiko Tinggi (High Risk)', value: `${vendors.filter(v => v.risikoSkor < 50).length} SPPG`, color: 'text-red-600', border: 'border-red-200', sub: 'Perlu Eskalasi & Sidak' },
+              { label: 'SPPG Risiko Sedang (Medium)', value: `${vendors.filter(v => v.risikoSkor >= 50 && v.risikoSkor < 80).length} SPPG`, color: 'text-amber-600', border: 'border-amber-200', sub: 'Dalam Pengawasan Khusus' },
+              { label: 'SPPG Kepatuhan Tinggi (Low Risk)', value: `${vendors.filter(v => v.risikoSkor >= 80).length} SPPG`, color: 'text-emerald-600', border: 'border-emerald-200', sub: 'Operasional Memenuhi Standar' },
             ].map(s => (
-              <div key={s.label} className={`bg-white p-6 rounded-xl border ${s.border} shadow-sm`}>
-                <div className={`text-3xl font-mono font-bold ${s.color}`}>{s.value}</div>
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">{s.label}</div>
+              <div key={s.label} className={`bg-white p-5 rounded-2xl border ${s.border} shadow-sm flex flex-col justify-between`}>
+                <div>
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{s.label}</div>
+                  <div className={`text-2xl font-mono font-bold ${s.color}`}>{s.value}</div>
+                </div>
+                <div className="text-[11px] text-slate-400 font-medium mt-2">{s.sub}</div>
               </div>
             ))}
           </div>
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-            <div className="p-5 bg-slate-50 border-b border-slate-100">
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-red-500" /> SPPG dengan Anomali Aktif
-              </h2>
+
+          {/* Detailed Compliance & Risk Monitoring Table */}
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-blue-600" />
+                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Matriks Compliance & Risk Monitoring SPPG</h2>
+              </div>
+              <span className="text-xs text-slate-500 font-medium">Evaluasi Real-Time Parameter Kepatuhan BGN</span>
             </div>
+            
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-slate-100/70 text-[11px] font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
                   <tr>
-                    <th className="py-3.5 px-5">Entitas SPPG</th>
-                    <th className="py-3.5 px-5">Lokasi</th>
-                    <th className="py-3.5 px-5">Skor Risiko</th>
-                    <th className="py-3.5 px-5">Catatan Anomali</th>
-                    <th className="py-3.5 px-5">Status & Tindakan</th>
+                    <th className="py-3.5 px-4">Entitas SPPG</th>
+                    <th className="py-3.5 px-4 text-center">Overall Compliance</th>
+                    <th className="py-3.5 px-4 text-center">Risk Level</th>
+                    <th className="py-3.5 px-4">Breakdown Skor Kepatuhan</th>
+                    <th className="py-3.5 px-4">Budget Compliance</th>
+                    <th className="py-3.5 px-4">Penyebab Risiko</th>
+                    <th className="py-3.5 px-4">Rekomendasi Tindak Lanjut</th>
+                    <th className="py-3.5 px-4 text-center">Prioritas Inspeksi</th>
+                    <th className="py-3.5 px-4">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {vendors.filter(v=>v.anomali.length>0).map(v => {
+                  {vendors.map((v) => {
                     const esc = escalationStatus[v.id];
+                    
+                    // Computed Compliance Metrics
+                    const licenseScore = v.statusVerifikasi === 'Terverifikasi' ? 98 : v.statusVerifikasi === 'Pending' ? 65 : 20;
+                    const sopScore = Math.min(100, Math.max(10, v.risikoSkor + 2));
+                    const nutritionScore = Math.min(100, Math.max(15, v.risikoSkor + 5));
+                    const isBudgetOver = v.hargaSatuan > 15500;
+                    const budgetScore = isBudgetOver ? 50 : 98;
+                    const overallScore = Math.round((licenseScore + sopScore + nutritionScore + budgetScore) / 4);
+                    
+                    const riskLevel = overallScore >= 80 ? 'Low' : overallScore >= 50 ? 'Medium' : 'High';
+                    const riskBadgeClass = riskLevel === 'Low' 
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                      : riskLevel === 'Medium' 
+                      ? 'bg-amber-50 text-amber-700 border-amber-200' 
+                      : 'bg-red-50 text-red-700 border-red-200';
+
+                    const penyebab = v.anomali.length > 0 
+                      ? v.anomali.join('; ') 
+                      : isBudgetOver 
+                      ? `Tarif per porsi (Rp ${v.hargaSatuan.toLocaleString('id-ID')}) melebihi batas acuan BGN` 
+                      : 'Tidak ada anomali terdeteksi. Seluruh indikator dalam batas aman.';
+
+                    const rekomendasi = overallScore < 50
+                      ? 'Tangguhkan operasional dapur segera, audit forensik keuangan & sidak Satgas BGN'
+                      : overallScore < 80
+                      ? 'Kirim peringatan tertulis, evaluasi ulang SOP higiene sanitasi & kalibrasi alat masak'
+                      : 'Pertahankan standar kualitas, lakukan pengawasan berkala bulanan';
+
+                    const prioritas = overallScore < 50 
+                      ? { label: 'P1 - Mendesak', class: 'bg-red-600 text-white' }
+                      : overallScore < 80 
+                      ? { label: 'P2 - Sedang', class: 'bg-amber-500 text-white' }
+                      : { label: 'P3 - Rutin', class: 'bg-slate-200 text-slate-700' };
+
                     return (
-                      <tr key={v.id} className={`hover:bg-slate-50 ${esc === 'suspended' ? 'opacity-60' : ''}`}>
-                        <td className="py-3.5 px-5 font-bold text-slate-800">{v.nama}</td>
-                        <td className="py-3.5 px-5 text-slate-500">{v.kota}, {v.provinsi}</td>
-                        <td className="py-3.5 px-5">
-                          <div className="flex items-center gap-2">
-                            <RiskBadge skor={v.risikoSkor} />
-                            <button onClick={() => setRiskBreakdownVendor(v)} className="px-2 py-1 bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-600 rounded uppercase hover:bg-slate-200">Lihat Detail</button>
+                      <tr key={v.id} className={`hover:bg-slate-50 transition-colors ${esc === 'suspended' ? 'bg-red-50/40 opacity-75' : ''}`}>
+                        {/* Entitas */}
+                        <td className="py-4 px-4 font-medium">
+                          <div className="font-bold text-slate-900 text-sm">{v.nama}</div>
+                          <div className="text-[11px] text-slate-500">{v.kota}, {v.provinsi}</div>
+                          <div className="font-mono text-[10px] text-slate-400 mt-0.5">{v.id}</div>
+                        </td>
+
+                        {/* Overall Compliance */}
+                        <td className="py-4 px-4 text-center">
+                          <div className="text-base font-extrabold font-mono text-slate-900">{overallScore}%</div>
+                          <div className="w-16 h-1.5 bg-slate-100 rounded-full mx-auto mt-1 overflow-hidden">
+                            <div 
+                              className={`h-full ${overallScore >= 80 ? 'bg-emerald-500' : overallScore >= 50 ? 'bg-amber-500' : 'bg-red-500'}`} 
+                              style={{ width: `${overallScore}%` }}
+                            />
                           </div>
                         </td>
-                        <td className="py-3.5 px-5 text-xs text-red-700 font-medium max-w-xs">{v.anomali.join(' - ')}</td>
-                        <td className="py-3.5 px-5">
-                          {esc === 'suspended' ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-700 border border-red-300 rounded-lg text-xs font-bold uppercase">
-                              <Lock className="w-3.5 h-3.5" /> DITANGGUHKAN
-                            </span>
-                          ) : esc === 'escalated' ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-700 border border-amber-300 rounded-lg text-xs font-bold uppercase">
-                              <AlertOctagon className="w-3.5 h-3.5" /> Sedang Diaudit
+
+                        {/* Risk Level */}
+                        <td className="py-4 px-4 text-center">
+                          <span className={`inline-block px-2.5 py-1 rounded-md border font-black uppercase text-[10px] tracking-wider ${riskBadgeClass}`}>
+                            {riskLevel}
+                          </span>
+                        </td>
+
+                        {/* Breakdown Scores */}
+                        <td className="py-4 px-4 space-y-1">
+                          <div className="flex items-center justify-between gap-2 text-[10px]">
+                            <span className="text-slate-500 font-semibold">License Score:</span>
+                            <span className="font-mono font-bold text-slate-800">{licenseScore}%</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-2 text-[10px]">
+                            <span className="text-slate-500 font-semibold">SOP Compliance:</span>
+                            <span className="font-mono font-bold text-slate-800">{sopScore}%</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-2 text-[10px]">
+                            <span className="text-slate-500 font-semibold">Nutrition Compliance:</span>
+                            <span className="font-mono font-bold text-slate-800">{nutritionScore}%</span>
+                          </div>
+                        </td>
+
+                        {/* Budget Compliance Status */}
+                        <td className="py-4 px-4">
+                          {isBudgetOver ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded">
+                              <AlertTriangle className="w-3 h-3 text-red-500" /> Over Budget (Rp {v.hargaSatuan.toLocaleString('id-ID')})
                             </span>
                           ) : (
-                            <button
-                              onClick={() => {
-                                setEscalationStatus(p => ({...p, [v.id]: 'escalated'}));
-                                showToast(`${v.nama} telah dieskasi ke tim audit BGN. Distribusi SPPG ditangguhkan sementara.`, 'danger');
-                                setTimeout(() => setEscalationStatus(p => ({...p, [v.id]: 'suspended'})), 2000);
-                              }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-600 hover:text-white transition-colors"
-                            >
-                              <Siren className="w-3.5 h-3.5" /> Eskalasi & Tangguhkan
-                            </button>
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-500" /> Sesuai Acuan (Rp {v.hargaSatuan.toLocaleString('id-ID')})
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Penyebab Risiko */}
+                        <td className="py-4 px-4 max-w-xs text-[11px] text-slate-700 font-medium">
+                          <div className="line-clamp-2" title={penyebab}>{penyebab}</div>
+                        </td>
+
+                        {/* Rekomendasi Tindak Lanjut */}
+                        <td className="py-4 px-4 max-w-xs text-[11px] text-blue-900 bg-blue-50/50 p-2 rounded-lg border border-blue-100 font-medium">
+                          <div className="flex items-start gap-1">
+                            <BrainCircuit className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                            <span>{rekomendasi}</span>
+                          </div>
+                        </td>
+
+                        {/* Prioritas Inspeksi */}
+                        <td className="py-4 px-4 text-center">
+                          <span className={`inline-block px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${prioritas.class}`}>
+                            {prioritas.label}
+                          </span>
+                        </td>
+
+                        {/* Aksi */}
+                        <td className="py-4 px-4">
+                          {esc === 'suspended' ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-100 text-red-800 border border-red-300 rounded text-[10px] font-bold uppercase">
+                              <Lock className="w-3 h-3" /> Ditangguhkan
+                            </span>
+                          ) : (
+                            <div className="flex flex-col gap-1.5">
+                              <button 
+                                onClick={() => setRiskBreakdownVendor(v)}
+                                className="px-2.5 py-1 text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 transition-colors"
+                              >
+                                Detail Audit
+                              </button>
+                              {overallScore < 80 && (
+                                <button
+                                  onClick={() => {
+                                    setEscalationStatus(p => ({...p, [v.id]: 'escalated'}));
+                                    showToast(`Kasus ${v.nama} telah dieskalasi ke Satgas BGN Pusat. Status operasi ditangguhkan.`, 'danger');
+                                    setTimeout(() => setEscalationStatus(p => ({...p, [v.id]: 'suspended'})), 2000);
+                                  }}
+                                  className="px-2.5 py-1 text-[10px] font-bold text-red-600 bg-white border border-red-200 rounded hover:bg-red-600 hover:text-white transition-colors"
+                                >
+                                  Eskalasi
+                                </button>
+                              )}
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -971,17 +1199,51 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
       {/* ========= DISTRIBUSI & KEUANGAN SUB-PAGE ========= */}
       {activeSubView === 'finance' && (
         <div className="space-y-6">
-          <div className="flex items-start justify-between">
+          <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">Distribusi & Keuangan</h1>
-              <p className="text-sm text-slate-500 mt-1">Pemantauan penyaluran porsi makan bergizi dan penyerapan anggaran per SPPG.</p>
+              <p className="text-sm text-slate-500 mt-1">Pemantauan penyaluran porsi makan bergizi, alokasi anggaran, &amp; <b>Penyaluran Dana Berkala SPPG (Jadwal Senin)</b>.</p>
             </div>
-            <div className="bg-white px-3 py-1.5 border border-slate-200 rounded-lg flex items-center gap-2 shadow-sm">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Tanggal:</span>
-              <input type="date" defaultValue="2026-08-12" className="text-sm font-bold text-slate-800 outline-none" />
+            <div className="flex items-center gap-3">
+              <div className="bg-white px-3 py-1.5 border border-slate-200 rounded-lg flex items-center gap-2 shadow-sm">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Tanggal:</span>
+                <input type="date" defaultValue="2026-08-12" className="text-sm font-bold text-slate-800 outline-none" />
+              </div>
+              <button
+                onClick={() => setShowDisbursementModal(true)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+              >
+                <Banknote className="w-4 h-4" /> + Salurkan Dana ke SPPG (Jadwal Senin)
+              </button>
             </div>
           </div>
           
+          {/* Banner Informasi Penyaluran Rutin Hari Senin */}
+          <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white p-5 rounded-2xl shadow-sm border border-blue-800 flex flex-wrap items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-400/30">
+                  Jadwal Penyaluran Rutin: Hari Senin
+                </span>
+                <span className="text-xs font-mono text-slate-300">Jadwal Berikutnya: Senin, 17 Agustus 2026</span>
+              </div>
+              <h3 className="text-base font-bold text-white">Sistem Penyaluran Dana Berkala Ke SPPG Tujuan</h3>
+              <p className="text-xs text-blue-200">Badan Gizi Nasional (BGN) membuat dan menyalurkan alokasi dana mingguan secara otomatis langsung ke rekening bank SPPG penerima.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="bg-white/10 px-4 py-2 rounded-xl border border-white/10 text-right">
+                <div className="text-[10px] text-blue-200 uppercase font-bold">Total Dana Disalurkan (Senin Ini)</div>
+                <div className="text-lg font-mono font-bold text-emerald-300">Rp 827.250.000</div>
+              </div>
+              <button 
+                onClick={() => setShowDisbursementModal(true)}
+                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition-colors shadow-sm"
+              >
+                Proses Penyaluran Senin
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
               <div>
@@ -999,10 +1261,10 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
             </div>
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
               <div>
-                <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1 mb-2"><Lock className="w-3 h-3"/> Blockchain Audit Trail</div>
-                <div className="text-xl font-mono font-bold text-slate-900">Active</div>
+                <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1 mb-2"><FileText className="w-3 h-3"/> Conventional Audit Log</div>
+                <div className="text-xl font-mono font-bold text-slate-900">Active Log</div>
               </div>
-              <div className="text-[10px] text-slate-500 font-medium leading-tight mt-2">100% transaksi distribusi & invoice terkunci (immutable).</div>
+              <div className="text-[10px] text-slate-500 font-medium leading-tight mt-2">Log aktivitas pengguna, perubahan data, verifikasi &amp; tindak lanjut.</div>
             </div>
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between bg-blue-50/50">
               <div>
@@ -1013,9 +1275,10 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
             </div>
           </div>
 
+          {/* TABEL 1: RINCIAN PENYERAPAN ANGGARAN & DANA MINGGUAN */}
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
             <div className="p-5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Rincian Penyerapan Anggaran SPPG</h2>
+              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Rincian Penyerapan Anggaran &amp; Rekening SPPG Tujuan</h2>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input type="text" placeholder="Cari entitas..." className="pl-9 pr-3 py-1.5 text-xs font-medium rounded-lg bg-white border border-slate-300 w-48 outline-none focus:border-blue-500" />
@@ -1025,20 +1288,22 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
               <table className="w-full text-sm text-left">
                 <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
                   <tr>
-                    <th className="py-3.5 px-5">Entitas SPPG</th>
-                    <th className="py-3.5 px-5">Wilayah</th>
-                    <th className="py-3.5 px-5">Menu yang Disajikan</th>
-                    <th className="py-3.5 px-5">Porsi Terkirim</th>
+                    <th className="py-3.5 px-5">Entitas SPPG Tujuan</th>
+                    <th className="py-3.5 px-5">Wilayah Operasional</th>
+                    <th className="py-3.5 px-5">Porsi Harian</th>
                     <th className="py-3.5 px-5">Tarif per Porsi</th>
-                    <th className="py-3.5 px-5">Total Anggaran (Estimasi)</th>
+                    <th className="py-3.5 px-5">Estimasi Total Anggaran</th>
+                    <th className="py-3.5 px-5">Aksi Penyaluran (Senin)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {vendors.map(v => (
                     <tr key={v.id} className="hover:bg-slate-50">
-                      <td className="py-3.5 px-5 font-bold text-slate-800">{v.nama}</td>
+                      <td className="py-3.5 px-5 font-bold text-slate-800">
+                        <div>{v.nama}</div>
+                        <div className="text-[10px] text-slate-400 font-mono font-normal">Rek: Bank Mandiri (152009988112)</div>
+                      </td>
                       <td className="py-3.5 px-5 text-slate-500">{v.kota}</td>
-                      <td className="py-3.5 px-5 text-xs text-slate-600 max-w-xs leading-relaxed">Nasi Putih, Lauk Protein, Sayuran, Buah Pisang, Susu UHT</td>
                       <td className="py-3.5 px-5 font-mono text-blue-700 font-bold">{v.distribusiHariIni.toLocaleString('id-ID')}</td>
                       <td className="py-3.5 px-5 font-mono">
                         Rp {v.hargaSatuan.toLocaleString('id-ID')}
@@ -1053,6 +1318,183 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                       <td className="py-3.5 px-5 font-mono text-emerald-700 font-bold">
                         Rp {(v.distribusiHariIni * v.hargaSatuan).toLocaleString('id-ID')}
                       </td>
+                      <td className="py-3.5 px-5">
+                        <button
+                          onClick={() => {
+                            setDisbursementForm(p => ({ ...p, sppgId: v.id, porsi: v.distribusiHariIni * 5 }));
+                            setShowDisbursementModal(true);
+                          }}
+                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors"
+                        >
+                          <Banknote className="w-3.5 h-3.5" /> Salurkan Dana Senin
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* TABEL 2: RIWAYAT & JADWAL PENYALURAN DANA BERKALA (SENIN) */}
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                  <Banknote className="w-4.5 h-4.5 text-blue-600" /> Riwayat &amp; Jadwal Penyaluran Dana Berkala (Jadwal Hari Senin)
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">Daftar transfer dana berkala dari BGN yang terhubung langsung ke rekening SPPG tujuan.</p>
+              </div>
+              <button 
+                onClick={() => setShowDisbursementModal(true)}
+                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+              >
+                <Banknote className="w-3.5 h-3.5" /> + Salurkan Dana Baru
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-slate-100/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
+                  <tr>
+                    <th className="py-3.5 px-4">ID Transaksi BGN</th>
+                    <th className="py-3.5 px-4">SPPG Tujuan &amp; Bank</th>
+                    <th className="py-3.5 px-4">Jadwal Penyaluran</th>
+                    <th className="py-3.5 px-4">Jumlah Porsi Mingguan</th>
+                    <th className="py-3.5 px-4">Nominal Transfer (Rp)</th>
+                    <th className="py-3.5 px-4">Status Transfer Kas Negara</th>
+                    <th className="py-3.5 px-4">Aksi / Bukti BAP</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {disbursements.map((d) => (
+                    <tr key={d.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-600">{d.id}</td>
+                      <td className="py-3.5 px-4 font-bold text-slate-800">
+                        <div>{d.sppgNama}</div>
+                        <div className="text-[10px] text-slate-400 font-mono font-normal">{d.bank}</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-bold text-blue-700">{d.periode}</td>
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">{d.porsi.toLocaleString('id-ID')} Porsi</td>
+                      <td className="py-3.5 px-4 font-mono font-bold text-emerald-700">Rp {d.nominal.toLocaleString('id-ID')}</td>
+                      <td className="py-3.5 px-4">
+                        <span className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase border ${
+                          d.status.includes('Disalurkan') 
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}>
+                          {d.status}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <button 
+                          onClick={() => alert(`Bukti BAP Penyaluran Dana Kas Negara untuk ${d.sppgNama} (${d.periode}) terverifikasi sah.`)}
+                          className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded font-bold text-[10px] flex items-center gap-1 shadow-sm transition-colors"
+                        >
+                          <FileText className="w-3 h-3 text-blue-600" /> Cetak Bukti BAP
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* CONVENTIONAL AUDIT LOG TABLE */}
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-emerald-600" /> Conventional Audit Log (Sistem Log Pengawasan)
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">Rekam jejak aktivitas pengguna, perubahan data sebelum &amp; sesudah, hasil verifikasi, &amp; tindak lanjut.</p>
+              </div>
+              <span className="text-xs font-mono font-bold text-slate-600 bg-slate-200 px-3 py-1 rounded-lg">
+                Log Real-Time Sistem
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-slate-100/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
+                  <tr>
+                    <th className="py-3.5 px-4">Pengguna (User)</th>
+                    <th className="py-3.5 px-4">Aktivitas Operasi</th>
+                    <th className="py-3.5 px-4">Waktu (Timestamp)</th>
+                    <th className="py-3.5 px-4">Perubahan Data</th>
+                    <th className="py-3.5 px-4">Data Sebelum ➔ Sesudah</th>
+                    <th className="py-3.5 px-4">Hasil Verifikasi</th>
+                    <th className="py-3.5 px-4">Tindak Lanjut</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {[
+                    {
+                      pengguna: 'Ahmad Supriyadi (Admin SPPG)',
+                      aktivitas: 'Update Alokasi RAB HPP',
+                      waktu: '12 Ags 2026, 08:14 WITA',
+                      perubahanData: 'HPP Bahan Baku Makanan',
+                      sebelumSesudah: 'Rp 9.800 ➔ Rp 10.500 / porsi',
+                      hasilVerifikasi: 'Terverifikasi Sesuai Acuan BGN',
+                      tindakLanjut: 'RAB Disetujui Sistem',
+                      color: 'emerald'
+                    },
+                    {
+                      pengguna: 'Sistem OCR AI (Automated)',
+                      aktivitas: 'Audit Dokumen Legalitas SLHS',
+                      waktu: '12 Ags 2026, 07:30 WITA',
+                      perubahanData: 'Status Dokumen SLHS Dapur',
+                      sebelumSesudah: 'Pending ➔ Valid (s.d 2031)',
+                      hasilVerifikasi: 'Lolos Audit AI (99.1% Acc)',
+                      tindakLanjut: 'Sertifikat Dapur Terbit',
+                      color: 'blue'
+                    },
+                    {
+                      pengguna: 'Dra. Endang (Kepsek SDN 1)',
+                      aktivitas: 'Verifikasi BAP Goods Receipt',
+                      waktu: '12 Ags 2026, 07:15 WITA',
+                      perubahanData: 'Porsi Diterima Fisik Sekolah',
+                      sebelumSesudah: '450 Porsi ➔ 445 Porsi (Selisih 5)',
+                      hasilVerifikasi: 'Terdeteksi Selisih 5 Porsi',
+                      tindakLanjut: 'Eskalasi Otomatis ke Vendor',
+                      color: 'amber'
+                    },
+                    {
+                      pengguna: 'Satgas Audit BGN Region 5',
+                      aktivitas: 'Koreksi Skor Kepatuhan Dapur',
+                      waktu: '11 Ags 2026, 16:45 WITA',
+                      perubahanData: 'SOP Compliance Score',
+                      sebelumSesudah: '88% ➔ 92% (Setelah Inspeksi)',
+                      hasilVerifikasi: 'SOP Sterilisasi Lolos Audit',
+                      tindakLanjut: 'Perpanjangan Lisensi Dapur',
+                      color: 'emerald'
+                    },
+                    {
+                      pengguna: 'Rudi Hermawan (Logistik SPPG)',
+                      aktivitas: 'Pembaruan Jam Keberangkatan',
+                      waktu: '11 Ags 2026, 06:10 WITA',
+                      perubahanData: 'Waktu Pengiriman Rute A',
+                      sebelumSesudah: '06:30 ➔ 06:45 WITA',
+                      hasilVerifikasi: 'Tepat Waktu (< 30 Menit)',
+                      tindakLanjut: 'Notifikasi Sekolah Terkirim',
+                      color: 'blue'
+                    },
+                  ].map((log, i) => (
+                    <tr key={i} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3 px-4 font-bold text-slate-800">{log.pengguna}</td>
+                      <td className="py-3 px-4 text-slate-700 font-medium">{log.aktivitas}</td>
+                      <td className="py-3 px-4 font-mono text-[11px] text-slate-500">{log.waktu}</td>
+                      <td className="py-3 px-4 font-medium text-slate-800">{log.perubahanData}</td>
+                      <td className="py-3 px-4 font-mono text-[11px] text-slate-700">{log.sebelumSesudah}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          log.color === 'emerald' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                          log.color === 'blue' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                          'bg-amber-50 text-amber-700 border border-amber-200'
+                        }`}>
+                          {log.hasilVerifikasi}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 font-semibold text-slate-700">{log.tindakLanjut}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1175,6 +1617,124 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL PENYALURAN DANA BERKALA (JADWAL SENIN) */}
+      {showDisbursementModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowDisbursementModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative border border-slate-200" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setShowDisbursementModal(false)} 
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-blue-900 to-indigo-900 text-white">
+              <div className="flex items-center gap-2 text-emerald-400 mb-1">
+                <Banknote className="w-5 h-5" />
+                <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-400/30">
+                  BGN Financial Transfer
+                </span>
+              </div>
+              <h3 className="font-heading font-bold text-xl text-white">Buat &amp; Salurkan Dana Ke SPPG</h3>
+              <p className="text-xs text-blue-200 mt-1">Penyaluran alokasi dana operasional berkala mingguan (Jadwal Setiap Hari Senin).</p>
+            </div>
+            
+            <form onSubmit={handleCreateDisbursement} className="p-6 space-y-4">
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Pilih Entitas SPPG Tujuan</label>
+                <select 
+                  value={disbursementForm.sppgId}
+                  onChange={e => {
+                    const selId = e.target.value;
+                    const v = vendors.find(x => x.id === selId);
+                    setDisbursementForm(p => ({ ...p, sppgId: selId, porsi: (v?.distribusiHariIni || 2000) * 5 }));
+                  }}
+                  className="w-full text-sm border border-slate-300 rounded-xl px-3.5 py-2.5 font-bold text-slate-800 bg-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                >
+                  {vendors.map(v => (
+                    <option key={v.id} value={v.id}>
+                      {v.nama} — ({v.kota}) &bull; Target: {v.distribusiHariIni.toLocaleString('id-ID')} Porsi/Hari
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Jadwal Penyaluran (Hari Senin)</label>
+                  <select 
+                    value={disbursementForm.periode}
+                    onChange={e => setDisbursementForm(p => ({ ...p, periode: e.target.value }))}
+                    className="w-full text-xs font-bold border border-slate-300 rounded-xl px-3 py-2.5 bg-white outline-none focus:border-blue-500 text-blue-700"
+                  >
+                    <option value="Senin, 17 Agustus 2026">Senin, 17 Agustus 2026 (Minggu I)</option>
+                    <option value="Senin, 24 Agustus 2026">Senin, 24 Agustus 2026 (Minggu II)</option>
+                    <option value="Senin, 31 Agustus 2026">Senin, 31 Agustus 2026 (Minggu III)</option>
+                    <option value="Senin, 07 September 2026">Senin, 07 September 2026 (Minggu IV)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Total Porsi Mingguan</label>
+                  <input 
+                    type="number" 
+                    value={disbursementForm.porsi}
+                    onChange={e => setDisbursementForm(p => ({ ...p, porsi: Number(e.target.value) }))}
+                    className="w-full text-sm font-mono font-bold border border-slate-300 rounded-xl px-3 py-2 text-slate-900 outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Autocalculated Nominal Dana */}
+              <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Kalkulasi Total Dana (Porsi x Rp 15.000)</div>
+                  <div className="text-2xl font-mono font-bold text-emerald-700 mt-0.5">
+                    Rp {((disbursementForm.porsi || 0) * 15000).toLocaleString('id-ID')}
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-emerald-700 bg-white px-2.5 py-1 rounded-lg border border-emerald-200">
+                  Acuan Batas BGN ✓
+                </span>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Rekening Kas Negara &amp; Bank SPPG Tujuan</label>
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-700 space-y-1">
+                  <div className="font-bold text-slate-900">Bank Tujuan: Bank Mandiri (152009988112)</div>
+                  <div className="text-slate-500 text-[11px]">Atas Nama: {vendors.find(v=>v.id===disbursementForm.sppgId)?.nama || 'CV. Dapur Nusantara'}</div>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Catatan Instruksi BGN</label>
+                <input 
+                  type="text"
+                  value={disbursementForm.catatan}
+                  onChange={e => setDisbursementForm(p => ({ ...p, catatan: e.target.value }))}
+                  placeholder="Instruksi alokasi bahan baku..."
+                  className="w-full text-xs border border-slate-300 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 flex gap-3 bg-slate-50 -mx-6 -mb-6 p-6">
+                <button 
+                  type="button"
+                  onClick={() => setShowDisbursementModal(false)} 
+                  className="flex-1 py-3 bg-white border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors text-xs shadow-sm"
+                >
+                  Batal
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors text-xs flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  <Send className="w-4 h-4" /> Proses Penyaluran Senin
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

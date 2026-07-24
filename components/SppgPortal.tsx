@@ -6,7 +6,7 @@ import {
   Info, Calendar, CheckCircle2, AlertCircle, Loader2, 
   Clock, CheckSquare, XCircle, Home, Utensils, BarChart3,
   TrendingUp, TrendingDown, MapPin, Lock, Navigation,
-  BrainCircuit, ShieldCheck, Link, GraduationCap, Plus, RefreshCw, X
+  BrainCircuit, ShieldCheck, Link, GraduationCap, Plus, RefreshCw, X, QrCode
 } from 'lucide-react';
 import type { SppgSubView, ActiveSubView } from './KawalApp';
 
@@ -244,13 +244,60 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
       {/* --- SCHOOL MANAGEMENT VIEW --- */}
       {activeSubView === 'schools' && (
         <div className="space-y-6 pb-6">
+          {/* Data Penerima Agregat Card Section */}
+          <div className="bg-gradient-to-r from-blue-900 to-slate-900 text-white rounded-2xl p-6 shadow-md border border-blue-800">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-4 border-b border-blue-800 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black uppercase tracking-wider bg-blue-500/30 text-blue-200 px-2.5 py-0.5 rounded border border-blue-400/30">
+                    Data Penerima (Agregat Nasional)
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-mono">Privasi Terjaga (Tanpa Nama Individu)</span>
+                </div>
+                <h2 className="text-xl font-heading font-bold text-white mt-1">Ringkasan Penerima Manfaat & Diet Khusus</h2>
+              </div>
+              <span className="text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Terverifikasi Sistem BGN
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+              <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                <div className="text-[10px] text-blue-200 font-bold uppercase tracking-wider mb-1">Jumlah Penerima</div>
+                <div className="text-2xl font-mono font-bold text-white">1.250 <span className="text-xs font-normal text-blue-200">Siswa</span></div>
+                <div className="text-[10px] text-slate-300 mt-1">Total Kuota Kontrak</div>
+              </div>
+              <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                <div className="text-[10px] text-blue-200 font-bold uppercase tracking-wider mb-1">Jumlah Siswa Hadir</div>
+                <div className="text-2xl font-mono font-bold text-emerald-400">1.215 <span className="text-xs font-normal text-emerald-200">Siswa</span></div>
+                <div className="text-[10px] text-slate-300 mt-1">Absensi Harian Terverifikasi</div>
+              </div>
+              <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                <div className="text-[10px] text-blue-200 font-bold uppercase tracking-wider mb-1">Jumlah Porsi Disiapkan</div>
+                <div className="text-2xl font-mono font-bold text-cyan-300">1.250 <span className="text-xs font-normal text-cyan-200">Porsi</span></div>
+                <div className="text-[10px] text-slate-300 mt-1">Sesuai Rencana Masak</div>
+              </div>
+              <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                <div className="text-[10px] text-amber-300 font-bold uppercase tracking-wider mb-1">Diet Khusus / Alergi</div>
+                <div className="text-2xl font-mono font-bold text-amber-400">20 <span className="text-xs font-normal text-amber-200">Siswa</span></div>
+                <div className="text-[10px] text-amber-200/80 mt-1">12 Kacang, 5 Seafood, 3 Laktosa</div>
+              </div>
+              <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                <div className="text-[10px] text-orange-300 font-bold uppercase tracking-wider mb-1">Selisih Porsi</div>
+                <div className="text-2xl font-mono font-bold text-orange-400">35 <span className="text-xs font-normal text-orange-200">Porsi</span></div>
+                <div className="text-[10px] text-slate-300 mt-1">Direncanakan vs Diterima</div>
+              </div>
+            </div>
+          </div>
+
+          {/* School Table with Route & Delivery Confirmation */}
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
             <div className="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                  <GraduationCap className="w-5 h-5 text-blue-600" /> Manajemen Sekolah & Penerima
+                  <GraduationCap className="w-5 h-5 text-blue-600" /> Manajemen Sekolah & Rute Pengiriman
                 </h2>
-                <p className="text-xs text-slate-500 mt-1">Daftar sekolah penerima manfaat di bawah pengelolaan dapur Anda.</p>
+                <p className="text-xs text-slate-500 mt-1">Pengaturan rute armada, jadwal jam tiba, dan status konfirmasi penerimaan BAP.</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="text-xs font-bold text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">
@@ -271,31 +318,74 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                 <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
                   <tr>
                     <th className="py-3.5 px-5">Nama Sekolah</th>
-                    <th className="py-3.5 px-5">Alamat / Wilayah</th>
+                    <th className="py-3.5 px-5">Alamat & Rute Armada</th>
                     <th className="py-3.5 px-5 text-center">Jumlah Siswa</th>
-                    <th className="py-3.5 px-5">Kontrak Pengiriman</th>
+                    <th className="py-3.5 px-5">Jadwal & Waktu Pengiriman</th>
+                    <th className="py-3.5 px-5">Konfirmasi Penerimaan (BAP)</th>
                     <th className="py-3.5 px-5">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {schools.map(school => (
+                  {schools.map((school, idx) => (
                     <tr key={school.id} className="hover:bg-slate-50">
-                      <td className="py-4 px-5 font-bold text-slate-800">{school.nama}</td>
-                      <td className="py-4 px-5 text-slate-600">{school.lokasi}</td>
+                      <td className="py-4 px-5 font-bold text-slate-800">
+                        <div>{school.nama}</div>
+                        <div className="text-[10px] text-slate-400 font-mono font-medium">{school.id}</div>
+                      </td>
+                      <td className="py-4 px-5 text-slate-600">
+                        <div className="font-medium text-xs">{school.lokasi}</div>
+                        <div className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded w-max mt-1 border border-indigo-100">
+                          📍 Rute Armada {idx === 0 ? 'A (Parepare Utara)' : idx === 1 ? 'B (Parepare Barat)' : 'C (Parepare Selatan)'}
+                        </div>
+                      </td>
                       <td className="py-4 px-5 text-center font-mono font-bold text-blue-600 text-base">{school.siswa}</td>
-                      <td className="py-4 px-5 text-xs text-slate-500 font-medium">{school.kontrak}</td>
+                      <td className="py-4 px-5 text-xs text-slate-600 font-medium">
+                        <div>{school.kontrak}</div>
+                        <div className="text-[10px] text-slate-400">Estimasi Tiba: 25 Menit</div>
+                      </td>
+                      <td className="py-4 px-5">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg uppercase">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" /> BAP Terkonfirmasi
+                        </span>
+                      </td>
                       <td className="py-4 px-5">
                         <button
                           onClick={() => setSelectedSchoolForDetail(school)}
                           className="px-3 py-1.5 bg-blue-50 border border-blue-200 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-colors"
                         >
-                          Lihat Siswa
+                          Detail Siswa
                         </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          {/* Aduan Sekolah Aktif */}
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600" /> Aduan Sekolah Mitra (Aktif)
+              </h3>
+              <span className="text-xs text-slate-500 font-medium">1 Aduan Perlu Ditindaklanjuti</span>
+            </div>
+            <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-bold text-slate-900">SDN 5 Parepare</span>
+                  <span className="text-[10px] font-bold bg-amber-200 text-amber-800 px-2 py-0.5 rounded">Sedang Ditangani</span>
+                </div>
+                <p className="text-xs text-slate-700">"Nasi agak kurang hangat pada pengiriman jam 07:30."</p>
+                <div className="text-[10px] text-slate-400 mt-1 font-mono">Dilaporkan: Hari ini 08:10 WITA oleh Kepala Sekolah</div>
+              </div>
+              <button 
+                onClick={() => alert('Tindak lanjut dikirim ke tim dapur untuk sterilisasi box thermal pengiriman.')}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm shrink-0"
+              >
+                Kirim Tanggapan
+              </button>
             </div>
           </div>
         </div>
@@ -490,20 +580,21 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                     <tr>
                       <th className="py-3 px-4 w-12 text-center">No</th>
                       <th className="py-3 px-4">Nama Dokumen Persyaratan</th>
-                      <th className="py-3 px-4">File Berkas</th>
-                      <th className="py-3 px-4">Status Verifikasi</th>
+                      <th className="py-3 px-4">File Berkas & Masa Berlaku</th>
+                      <th className="py-3 px-4">Status & Reminder</th>
                       <th className="py-3 px-4 text-center">Perbarui Berkas</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {[
-                      { key: 'akta', name: 'Akta Pendirian Badan Usaha', desc: 'Surat Akta Notaris Pendirian PT/CV' },
-                      { key: 'nib', name: 'Nomor Induk Berusaha (NIB)', desc: 'Izin Usaha Berbasis Risiko OSS RBA' },
-                      { key: 'npwp', name: 'Nomor Pokok Wajib Pajak (NPWP)', desc: 'Kartu / Surat Keterangan NPWP Badan' },
-                      { key: 'proposal', name: 'Proposal Kerja Sama', desc: 'Proposal Kesiapan Dapur Pelayanan SPPG' },
-                      { key: 'logo', name: 'Logo Mitra SPPG', desc: 'Logo Resmi Badan Usaha / Dapur' },
-                      { key: 'kontak', name: 'NIK & Kontak Perwakilan', desc: 'KTP & Kontak Penanggung Jawab Dapur' },
-                      { key: 'lokasi', name: 'Lokasi & Kesiapan Bangunan', desc: 'Denah, Sertifikat & Foto Kesiapan Dapur' },
+                      { key: 'slhs', name: 'SLHS (Sertifikat Laik Higiene Sanitasi)', desc: 'Sertifikat Kelayakan Sanitasi Dapur BGN / Dinkes', expired: '12 Ags 2031 (Reminder: H-30)' },
+                      { key: 'akta', name: 'Akta Pendirian Badan Usaha', desc: 'Surat Akta Notaris Pendirian PT/CV', expired: 'Seumur Hidup' },
+                      { key: 'nib', name: 'Nomor Induk Berusaha (NIB)', desc: 'Izin Usaha Berbasis Risiko OSS RBA', expired: 'Aktif / Permanen' },
+                      { key: 'npwp', name: 'Nomor Pokok Wajib Pajak (NPWP)', desc: 'Kartu / Surat Keterangan NPWP Badan', expired: 'Tervalidasi Pajak' },
+                      { key: 'proposal', name: 'Proposal Kerja Sama Dapur', desc: 'Proposal Kesiapan Dapur Pelayanan SPPG', expired: 'Revisi Tahunan' },
+                      { key: 'logo', name: 'Logo Resmi Mitra SPPG', desc: 'Logo Resmi Badan Usaha / Dapur', expired: 'Aktif' },
+                      { key: 'kontak', name: 'NIK & KTP Penanggung Jawab', desc: 'KTP & Kontak Perwakilan Dapur SPPG', expired: 'Aktif Tervalidasi' },
+                      { key: 'lokasi', name: 'Lokasi & Kesiapan Bangunan', desc: 'Denah, Sertifikat & Geotagging Dapur', expired: 'Verifikasi Fisik BGN' },
                     ].map((item, idx) => {
                       const docData = loggedInVendor?.dokumenPersyaratan?.[item.key];
                       const docStatus = docData ? docData.status : 'Terverifikasi';
@@ -514,14 +605,20 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                         <tr key={item.key} className="hover:bg-slate-50 transition-colors">
                           <td className="py-3.5 px-4 text-center font-bold text-slate-500">{idx + 1}</td>
                           <td className="py-3.5 px-4">
-                            <div className="font-bold text-slate-800 text-xs">{item.name}</div>
+                            <div className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                              {item.key === 'slhs' && <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />}
+                              {item.name}
+                            </div>
                             <div className="text-[10px] text-slate-400 mt-0.5">{item.desc}</div>
                           </td>
                           <td className="py-3.5 px-4 font-mono text-[11px]">
-                            <span className="flex items-center gap-1.5 text-slate-600">
+                            <div className="flex items-center gap-1.5 text-slate-700 font-bold">
                               <FileText className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                              <span className="truncate max-w-[200px]" title={fileName}>{fileName}</span>
-                            </span>
+                              <span className="truncate max-w-[180px]" title={fileName}>{fileName}</span>
+                            </div>
+                            <div className="text-[10px] text-slate-400 mt-0.5 font-sans font-medium flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-slate-400" /> Masa Berlaku: <b className="text-slate-700">{item.expired}</b>
+                            </div>
                           </td>
                           <td className="py-3.5 px-4">
                             <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border
@@ -548,6 +645,28 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                     })}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Riwayat Verifikasi Dokumen */}
+              <div className="p-5 border-t border-slate-200 bg-slate-50/60">
+                <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-600" /> Riwayat Verifikasi Dokumen Smart Licensing
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { waktu: '12 Ags 2026 - 14:20 WITA', ket: 'SLHS & NIB diaudit ulang oleh sistem AI OCR BGN — Hasil: Valid (100%)', status: 'Disahkan' },
+                    { waktu: '10 Jul 2026 - 09:15 WITA', ket: 'Verifikasi Fisik Dapur oleh Tim Satgas BGN Parepare — Hasil: Lolos Verifikasi Lapangan', status: 'Selesai' },
+                    { waktu: '15 Jan 2026 - 11:00 WITA', ket: 'Pendaftaran Awal Berkas Kemitraan SPPG Parepare', status: 'Terverifikasi' },
+                  ].map((log, i) => (
+                    <div key={i} className="bg-white p-3 rounded-lg border border-slate-200 text-xs flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-[10px] text-slate-400 font-bold">{log.waktu}</span>
+                        <span className="text-slate-700 font-medium">{log.ket}</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">{log.status}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Processing or AI OCR Result indicator under the table */}
@@ -600,10 +719,10 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                       </div>
                       <div className="bg-white/80 p-3 rounded-lg border border-emerald-100 shadow-sm">
                         <div className="text-[10px] text-emerald-600 font-bold uppercase mb-1 flex items-center gap-1">
-                          <Link className="w-3 h-3" /> Blockchain Hash
+                          <FileText className="w-3 h-3" /> Conventional Audit Log ID
                         </div>
-                        <div className="text-xs font-mono font-bold text-slate-700 truncate" title="0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069">0x7f83b165...6d9069</div>
-                        <div className="text-[9px] text-slate-500 mt-1">Bukti verifikasi tidak dapat diubah (immutable).</div>
+                        <div className="text-xs font-mono font-bold text-slate-700 truncate" title="LOG-20260812-8819-VERIFIED">LOG-20260812-8819</div>
+                        <div className="text-[9px] text-slate-500 mt-1">Audit log tercatat di database resmi BGN.</div>
                       </div>
                     </div>
                     <div className="mt-3 bg-white/80 p-3 rounded-lg border border-emerald-100 flex items-start gap-2 text-xs">
@@ -1051,44 +1170,164 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
           </div>
         )}
 
-        {/* DELIVERY HISTORY */}
+        {/* DISTRIBUSI MAKANAN */}
         {activeSubView === 'delivery-history' && (
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden space-y-6">
             <div className="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Riwayat Pengiriman (Bulan Ini)</h2>
-              <button className="px-3 py-1.5 bg-white border border-slate-300 text-xs font-bold text-slate-700 rounded-lg hover:bg-slate-50">Export PDF</button>
+              <div>
+                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                  <Package className="w-4 h-4 text-blue-600" /> Distribusi Makanan & Pelacakan Armada
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">Jadwal pengiriman harian, sekolah tujuan, menu, waktu pengiriman, & status penerimaan BAP.</p>
+              </div>
+              <button className="px-3 py-1.5 bg-white border border-slate-300 text-xs font-bold text-slate-700 rounded-lg hover:bg-slate-50 shadow-sm flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-blue-600" /> Export Laporan PDF
+              </button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
                 <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
                   <tr>
-                    <th className="py-3.5 px-5">Tanggal</th>
+                    <th className="py-3.5 px-5">Jadwal & Tanggal</th>
                     <th className="py-3.5 px-5">Sekolah Tujuan</th>
-                    <th className="py-3.5 px-5">Menu</th>
-                    <th className="py-3.5 px-5">Porsi Terkirim</th>
-                    <th className="py-3.5 px-5">Status</th>
+                    <th className="py-3.5 px-5">Menu yang Disajikan</th>
+                    <th className="py-3.5 px-5">Jumlah Porsi</th>
+                    <th className="py-3.5 px-5">Waktu Pengiriman</th>
+                    <th className="py-3.5 px-5">Status Pengiriman</th>
+                    <th className="py-3.5 px-5">QR Transparansi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {[
-                    { date: '11 Agustus 2026', school: 'SDN 1 Parepare', menu: 'Nasi, Ayam Goreng, Sayur', qty: 450, status: 'Selesai' },
-                    { date: '11 Agustus 2026', school: 'SDN 5 Parepare', menu: 'Nasi, Ayam Goreng, Sayur', qty: 380, status: 'Selesai' },
-                    { date: '10 Agustus 2026', school: 'SDN 1 Parepare', menu: 'Nasi, Ikan Bakar, Sayur', qty: 450, status: 'Selesai' },
-                    { date: '10 Agustus 2026', school: 'SDN 5 Parepare', menu: 'Nasi, Ikan Bakar, Sayur', qty: 380, status: 'Selesai' },
-                    { date: '09 Agustus 2026', school: 'SDN 1 Parepare', menu: 'Nasi, Telur Dadar, Sayur', qty: 450, status: 'Selesai' },
+                    { date: '12 Agustus 2026', school: 'SDN 1 Parepare', menu: 'Nasi Putih, Ayam Fillet, Tumis Bayam, Pisang, Susu', qty: 450, time: '06:45 WITA (Tiba 07:00)', status: 'Diterima', color: 'emerald' },
+                    { date: '12 Agustus 2026', school: 'SDN 5 Parepare', menu: 'Nasi Putih, Ayam Fillet, Tumis Bayam, Pisang, Susu', qty: 380, time: '07:15 WITA (Tiba 07:30)', status: 'Diterima', color: 'emerald' },
+                    { date: '12 Agustus 2026', school: 'MTs Negeri Parepare', menu: 'Nasi Putih, Ayam Fillet, Tumis Bayam, Pisang, Susu', qty: 420, time: '07:50 WITA (Tiba 08:05)', status: 'Terkirim', color: 'blue' },
+                    { date: '11 Agustus 2026', school: 'SDN 1 Parepare', menu: 'Nasi Merah, Ikan Bakar, Sayur Sop, Apel, Susu', qty: 450, time: '07:10 WITA (Jadwal 07:00)', status: 'Terlambat', color: 'amber' },
+                    { date: '10 Agustus 2026', school: 'SDN 5 Parepare', menu: 'Nasi Kuning, Tempe, Sayur Asem, Semangka', qty: 380, time: '08:30 WITA (Laporan Porsi kurang)', status: 'Bermasalah', color: 'red' },
                   ].map((row, i) => (
-                    <tr key={i} className="hover:bg-slate-50">
+                    <tr key={i} className="hover:bg-slate-50 transition-colors">
                       <td className="py-3.5 px-5 font-mono text-xs text-slate-500">{row.date}</td>
                       <td className="py-3.5 px-5 font-bold text-slate-800">{row.school}</td>
-                      <td className="py-3.5 px-5 text-sm text-slate-600 max-w-xs">{row.menu}</td>
+                      <td className="py-3.5 px-5 text-xs text-slate-600 max-w-xs">{row.menu}</td>
                       <td className="py-3.5 px-5 text-sm font-bold text-slate-900">{row.qty} <span className="font-normal text-slate-500 text-xs">Porsi</span></td>
+                      <td className="py-3.5 px-5 text-xs font-mono text-slate-700">{row.time}</td>
                       <td className="py-3.5 px-5">
-                        <span className="text-xs font-bold text-emerald-600 flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> {row.status}</span>
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase border ${
+                          row.color === 'emerald' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                          row.color === 'blue' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                          row.color === 'amber' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                          'bg-red-50 text-red-700 border-red-200'
+                        }`}>
+                          {row.status === 'Diterima' ? <CheckCircle2 className="w-3 h-3 text-emerald-600" /> :
+                           row.status === 'Terkirim' ? <Clock className="w-3 h-3 text-blue-600" /> :
+                           row.status === 'Terlambat' ? <AlertCircle className="w-3 h-3 text-amber-600" /> :
+                           <XCircle className="w-3 h-3 text-red-600" />}
+                          {row.status}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-5">
+                        <button 
+                          onClick={() => alert(`Stiker QR Transparansi BGN untuk ${row.school} (${row.qty} porsi) siap dicetak. Berisi Identitas SPPG, Menu, Waktu Distribusi, Status Higiene & Form Feedback Publik.`)}
+                          className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded text-[11px] font-bold flex items-center gap-1 transition-colors"
+                        >
+                          <QrCode className="w-3.5 h-3.5" /> Cetak Stiker QR
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* BUDGET COMPLIANCE SUB-VIEW */}
+        {activeSubView === 'budget' && (
+          <div className="space-y-6 pb-6">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">Budget Compliance Dashboard</h1>
+                <p className="text-sm text-slate-500 mt-1">
+                  Evaluasi efisiensi anggaran per porsi vs acuan ketentuan BGN (Batas Maksimum Rp 15.000 / porsi).
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Status: Sesuai Ketentuan Regulator
+              </span>
+            </div>
+
+            {/* Budget KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Porsi Bulanan</div>
+                <div className="text-2xl font-mono font-bold text-slate-900">37.500 <span className="text-xs font-sans font-normal text-slate-500">porsi</span></div>
+                <div className="text-[11px] text-slate-400 mt-1">Target Penyaluran Bulan Agustus</div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Dana Alokasi</div>
+                <div className="text-2xl font-mono font-bold text-blue-600">Rp 562,5 Jt</div>
+                <div className="text-[11px] text-slate-400 mt-1">Realisasi Anggaran BGN</div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Rata-rata Biaya / Porsi</div>
+                <div className="text-2xl font-mono font-bold text-emerald-600">Rp 15.000</div>
+                <div className="text-[11px] text-slate-400 mt-1">Standar HPP BGN</div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Acuan Ketentuan Regulator</div>
+                <div className="text-2xl font-mono font-bold text-indigo-600">Rp 15.000</div>
+                <div className="text-[11px] text-emerald-600 font-bold mt-1">✓ 100% Sesuai Batas Acuan</div>
+              </div>
+            </div>
+
+            {/* Breakdown RAB HPP Tabel */}
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+              <div className="p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Breakdown Rencana Anggaran Biaya (RAB) Per Porsi</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">Komposisi HPP Bahan Baku, Biaya Dapur, Logistik, & Margin Kemitraan.</p>
+                </div>
+                <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200">
+                  Total: Rp 15.000 / Porsi
+                </span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-slate-100/70 text-[11px] font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
+                    <tr>
+                      <th className="py-3.5 px-4">Komponen Pembiayaan</th>
+                      <th className="py-3.5 px-4">Alokasi Per Porsi</th>
+                      <th className="py-3.5 px-4 text-center">Persentase (%)</th>
+                      <th className="py-3.5 px-4">Ketentuan Batas Regulator BGN</th>
+                      <th className="py-3.5 px-4">Status Kepatuhan</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {[
+                      { komponen: 'Bahan Baku Makanan (Protein, Karbohidrat, Sayur, Buah)', alokasi: 'Rp 10.500', pct: '70.0%', batas: 'Min. 68% (Rp 10.200)', status: 'Sesuai Ketentuan' },
+                      { komponen: 'Biaya Operasional Dapur & Bahan Bakar/Gas', alokasi: 'Rp 2.100', pct: '14.0%', batas: 'Maks. 15% (Rp 2.250)', status: 'Sesuai Ketentuan' },
+                      { komponen: 'Biaya Kemasan, Hygiene & Tempat Porsi Steril', alokasi: 'Rp 900', pct: '6.0%', batas: 'Maks. 7% (Rp 1.050)', status: 'Sesuai Ketentuan' },
+                      { komponen: 'Biaya Logistik & Distribusi Ke Sekolah', alokasi: 'Rp 750', pct: '5.0%', batas: 'Maks. 6% (Rp 900)', status: 'Sesuai Ketentuan' },
+                      { komponen: 'Margin Layanan Mitra SPPG', alokasi: 'Rp 750', pct: '5.0%', batas: 'Maks. 5% (Rp 750)', status: 'Sesuai Ketentuan' },
+                    ].map((r, i) => (
+                      <tr key={i} className="hover:bg-slate-50">
+                        <td className="py-3.5 px-4 font-bold text-slate-800">{r.komponen}</td>
+                        <td className="py-3.5 px-4 font-mono font-bold text-slate-900">{r.alokasi}</td>
+                        <td className="py-3.5 px-4 font-mono text-center font-bold text-blue-600">{r.pct}</td>
+                        <td className="py-3.5 px-4 text-slate-600 font-medium">{r.batas}</td>
+                        <td className="py-3.5 px-4">
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            {r.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

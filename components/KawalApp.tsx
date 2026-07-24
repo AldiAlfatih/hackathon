@@ -14,7 +14,7 @@ export type ActiveView = 'landing' | 'login' | 'sppg' | 'sekolah' | 'command';
 
 // Sub-views per role
 export type BgnSubView = 'overview' | 'risk' | 'licensing-review' | 'finance' | 'complaints' | 'ghost-detection';
-export type SppgSubView = 'dashboard' | 'licensing' | 'nutrition' | 'delivery-history' | 'onboarding' | 'hygiene' | 'schools';
+export type SppgSubView = 'dashboard' | 'licensing' | 'nutrition' | 'delivery-history' | 'onboarding' | 'hygiene' | 'schools' | 'budget';
 export type SekolahSubView = 'dashboard' | 'receipt' | 'complaint' | 'student-list';
 export type ActiveSubView = BgnSubView | SppgSubView | SekolahSubView;
 

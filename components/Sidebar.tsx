@@ -34,12 +34,13 @@ const BGN_MENUS: MenuItem[] = [
 ];
 
 const SPPG_MENUS: MenuItem[] = [
-  { id: 'dashboard',        label: 'Dashboard',             icon: Home,     desc: 'Ringkasan Operasional' },
-  { id: 'schools',          label: 'Manajemen Sekolah',     icon: GraduationCap, desc: 'Daftar Sekolah & Siswa' },
-  { id: 'delivery-history', label: 'Riwayat Pengiriman',    icon: Package,  desc: 'Rekam Jejak Distribusi' },
-  { id: 'licensing',        label: 'Syarat Izin SPPG',      icon: FileText, desc: 'Dokumen Persyaratan SPPG' },
-  { id: 'nutrition',        label: 'Nutrition Center',      icon: Utensils, desc: 'Laporan Foto & Kepatuhan Gizi' },
-  { id: 'hygiene',          label: 'Live Guard Monitoring', icon: Camera,   desc: 'Hygiene Compliance AI' },
+  { id: 'dashboard',        label: 'Dashboard',             icon: Home,          desc: 'Ringkasan Operasional' },
+  { id: 'schools',          label: 'Manajemen Sekolah',     icon: GraduationCap, desc: 'Sekolah & Data Penerima Agregat' },
+  { id: 'delivery-history', label: 'Distribusi Makanan',     icon: Package,       desc: 'Jadwal & Status Pengiriman' },
+  { id: 'licensing',        label: 'Smart Licensing',       icon: FileText,      desc: 'Dokumen Legalitas & SLHS AI' },
+  { id: 'nutrition',        label: 'Smart Nutrition',       icon: Utensils,      desc: 'Siklus 2 Minggu & AKG Menu' },
+  { id: 'hygiene',          label: 'Live Guard Monitoring', icon: Camera,        desc: 'SOP & Hygiene Compliance AI' },
+  { id: 'budget',           label: 'Budget Compliance',     icon: Banknote,      desc: 'Analisis Biaya & Acuan BGN' },
 ];
 
 const SEKOLAH_MENUS: MenuItem[] = [
