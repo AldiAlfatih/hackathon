@@ -1,6 +1,6 @@
 'use client';
 
-import { Shield, ArrowRight, Zap, Building2, Server, Database, CheckCircle, AlertTriangle, Users, BookOpen, Utensils, X, Camera, Search, ImageIcon, MapPin, AlertOctagon, Clock, QrCode, ScanLine } from 'lucide-react';
+import { Shield, ArrowRight, Zap, Building2, Server, Database, CheckCircle, AlertTriangle, Users, BookOpen, Utensils, X, Camera, Search, ImageIcon, MapPin, AlertOctagon, Clock, QrCode, ScanLine, BrainCircuit, ShieldCheck, FileText, Package, GraduationCap, MessageSquare, BarChart3 } from 'lucide-react';
 import type { ActiveView, GlobalComplaint } from './KawalApp';
 import { useState, useEffect, useRef } from 'react';
 import { vendors } from '@/lib/mockData';
@@ -133,26 +133,25 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
   return (
     <div className="h-full flex flex-col font-sans bg-slate-50 overflow-y-auto">
       {/* Hero Section */}
-      <div id="about" className="relative bg-white border-b border-slate-200 py-20 px-6 overflow-hidden">
+      <div id="about" className="relative bg-white border-b border-slate-200 py-16 md:py-20 px-6 overflow-hidden">
         <div className="absolute inset-0 bg-blue-50/30" style={{
           backgroundImage: `radial-gradient(var(--color-border-subtle) 1px, transparent 1px)`,
           backgroundSize: '24px 24px'
         }}></div>
         
         <div className="max-w-5xl mx-auto relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-sm font-semibold text-blue-700 mb-8 shadow-sm">
-            <Zap className="w-4 h-4" />
-            PROTOTIPE PORTAL TRANSPARANSI NASIONAL (HACKATHON)
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-xs sm:text-sm font-bold text-blue-700 mb-8 shadow-sm">
+            <BrainCircuit className="w-4 h-4 text-blue-600 shrink-0" />
+            PLATFORM DIGITAL PENGAWASAN & KEPATUHAN SPPG (AI & MANAJEMEN RISIKO)
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-heading font-extrabold text-slate-900 mb-6 leading-tight tracking-tight">
-            Pengawasan Publik Terpadu<br/>
-            <span className="text-blue-600">Makan Bergizi Gratis</span>
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-heading font-extrabold text-slate-900 mb-6 leading-tight tracking-tight">
+            Platform Digital Pengawasan & Kepatuhan SPPG<br/>
+            <span className="text-blue-600">Berbasis AI dan Manajemen Risiko</span>
           </h1>
           
-          <p className="text-slate-600 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-10">
-            Platform digital terintegrasi untuk pemantauan program Makan Bergizi Gratis (MBG). 
-            Melibatkan kecerdasan buatan untuk verifikasi gizi dan partisipasi publik untuk transparansi pengawasan.
+          <p className="text-slate-600 text-base md:text-xl leading-relaxed max-w-3xl mx-auto mb-10 font-medium">
+            Sistem pengawasan terpadu program Makan Bergizi Gratis (MBG) yang mengintegrasikan verifikasi perizinan legalitas, audit AI kepatuhan SOP dapur & gizi, pengawasan alokasi anggaran, serta verifikasi pengiriman hingga aduan sekolah.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -184,6 +183,97 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
               <Search className="w-5 h-5" /> Transparansi Anggaran
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* 8 Core Pillars Section */}
+      <div className="max-w-7xl mx-auto px-6 py-14 w-full border-b border-slate-200">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-xs font-bold uppercase tracking-wider mb-3">
+            <ShieldCheck className="w-3.5 h-3.5" /> 8 Pilar Kepatuhan Terpadu
+          </div>
+          <h2 className="text-2xl md:text-4xl font-heading font-black text-slate-900 mb-3 tracking-tight">Fokus Pengawasan &amp; Manajemen Risiko SPPG</h2>
+          <p className="text-slate-600 max-w-2xl mx-auto text-sm md:text-base font-medium">Sistem terintegrasi untuk memastikan kualitas makanan, keabsahan perizinan, hingga ketepatan distribusi di lapangan.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[
+            {
+              title: 'Pengawasan SPPG',
+              desc: 'Monitoring real-time operasional & skor risiko seluruh dapur penyedia SPPG se-Indonesia.',
+              icon: Building2,
+              color: 'text-blue-600',
+              bg: 'bg-blue-50',
+              border: 'border-blue-100'
+            },
+            {
+              title: 'Verifikasi Perizinan',
+              desc: 'Ekstraksi & validasi dokumen legalitas otomatis (Akta, NIB, NPWP) berbasis OCR AI.',
+              icon: FileText,
+              color: 'text-indigo-600',
+              bg: 'bg-indigo-50',
+              border: 'border-indigo-100'
+            },
+            {
+              title: 'Kepatuhan SOP Dapur',
+              desc: 'Live Guard Monitoring AI audit visual APD staff & standar kebersihan area dapur harian.',
+              icon: Camera,
+              color: 'text-sky-600',
+              bg: 'bg-sky-50',
+              border: 'border-sky-100'
+            },
+            {
+              title: 'Kepatuhan Gizi/Menu',
+              desc: 'Validasi AI 5 komponen gizi harian (karbohidrat, protein, sayur, buah, susu) standar BGN.',
+              icon: Utensils,
+              color: 'text-emerald-600',
+              bg: 'bg-emerald-50',
+              border: 'border-emerald-100'
+            },
+            {
+              title: 'Distribusi Makanan',
+              desc: 'Tracking pengiriman armada dapur ke sekolah dengan stiker QR Code menu real-time.',
+              icon: Package,
+              color: 'text-teal-600',
+              bg: 'bg-teal-50',
+              border: 'border-teal-100'
+            },
+            {
+              title: 'Kepatuhan Anggaran',
+              desc: 'Audit transparansi alokasi dana per porsi dan pencegahan penyimpangan anggaran APBN.',
+              icon: BarChart3,
+              color: 'text-amber-600',
+              bg: 'bg-amber-50',
+              border: 'border-amber-100'
+            },
+            {
+              title: 'Verifikasi Sekolah',
+              desc: 'Konfirmasi Goods Receipt fisik jumlah porsi & jam ketibaan langsung oleh sekolah.',
+              icon: GraduationCap,
+              color: 'text-purple-600',
+              bg: 'bg-purple-50',
+              border: 'border-purple-100'
+            },
+            {
+              title: 'Aduan & Feedback',
+              desc: 'Kanal aduan cepat dari sekolah & publik dengan tindak lanjut berjenjang Satgas BGN.',
+              icon: MessageSquare,
+              color: 'text-red-600',
+              bg: 'bg-red-50',
+              border: 'border-red-100'
+            },
+          ].map((pillar, i) => {
+            const Icon = pillar.icon;
+            return (
+              <div key={i} className={`p-5 rounded-2xl bg-white border ${pillar.border} shadow-sm hover:shadow-md transition-all group`}>
+                <div className={`w-11 h-11 rounded-xl ${pillar.bg} flex items-center justify-center mb-4 group-hover:scale-105 transition-transform`}>
+                  <Icon className={`w-5 h-5 ${pillar.color}`} />
+                </div>
+                <h3 className="font-bold text-slate-900 text-base mb-1.5">{pillar.title}</h3>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">{pillar.desc}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
 
