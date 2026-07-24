@@ -178,11 +178,11 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1.5">
+          <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
             <BarChart3 className="w-3.5 h-3.5" />
             <span>BGN Command Center</span>
             <ChevronRight className="w-3 h-3" />
-            <span className="text-slate-800">
+            <span className="text-slate-800 font-bold">
               {activeSubView === 'overview' ? 'Dashboard Nasional'
                : activeSubView === 'risk' ? 'Risk Monitoring'
                : activeSubView === 'ghost-detection' ? 'SPPG Ghost Detection'
@@ -191,14 +191,6 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                : 'Complaint Management'}
             </span>
           </div>
-          <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">
-            {activeSubView === 'overview' ? 'Pusat Komando & Pemantauan MBG'
-             : activeSubView === 'ghost-detection' ? 'SPPG Ghost & Anomaly Detection'
-             : activeSubView === 'risk' ? 'Compliance & Risk Monitoring'
-             : activeSubView === 'licensing-review' ? 'Licensing Review & Audit Legalitas'
-             : activeSubView === 'finance' ? 'Distribusi & Keuangan MBG'
-             : 'Complaint Management BGN'}
-          </h1>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-xs text-slate-500 font-mono font-medium">
