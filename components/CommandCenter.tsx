@@ -191,7 +191,14 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                : 'Complaint Management'}
             </span>
           </div>
-          <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">Pusat Komando & Pemantauan MBG</h1>
+          <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">
+            {activeSubView === 'overview' ? 'Pusat Komando & Pemantauan MBG'
+             : activeSubView === 'ghost-detection' ? 'SPPG Ghost & Anomaly Detection'
+             : activeSubView === 'risk' ? 'Compliance & Risk Monitoring'
+             : activeSubView === 'licensing-review' ? 'Licensing Review & Audit Legalitas'
+             : activeSubView === 'finance' ? 'Distribusi & Keuangan MBG'
+             : 'Complaint Management BGN'}
+          </h1>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-xs text-slate-500 font-mono font-medium">
