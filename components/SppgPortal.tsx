@@ -768,7 +768,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
               <div className="p-6 flex-1 flex flex-col justify-between">
                 <div>
                   {/* Cycle Selector Buttons */}
-                  <div className="flex gap-2 mb-5 p-1 bg-slate-100 rounded-lg border border-slate-200">
+                  <div className="flex flex-col sm:flex-row gap-2 mb-5 p-1 bg-slate-100 rounded-lg border border-slate-200">
                     <button
                       onClick={() => {
                         setMenuSiklus('siklus1');

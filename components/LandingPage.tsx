@@ -154,12 +154,12 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
             Sistem pengawasan terpadu program Makan Bergizi Gratis (MBG) yang mengintegrasikan verifikasi perizinan legalitas, inspeksi kepatuhan SOP dapur &amp; gizi, pengawasan alokasi anggaran, serta verifikasi pengiriman hingga aduan sekolah.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 w-full">
             {/* QR Scan Button (desktop click simulation) */}
             <button
               onClick={handleQrScan}
               disabled={qrScanState === 'scanning'}
-              className="relative group px-8 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-lg transition-all flex items-center gap-3 shadow-sm overflow-hidden"
+              className="w-full sm:w-auto relative group px-5 sm:px-8 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-3 shadow-sm overflow-hidden"
             >
               {qrScanState === 'scanning' && (
                 <span className="absolute inset-0 flex items-center justify-center bg-blue-700">
@@ -172,14 +172,14 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
             </button>
             <button 
               onClick={() => setShowRegisterForm(true)}
-              className="px-8 py-3.5 bg-slate-900 hover:bg-slate-950 text-white font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+              className="w-full sm:w-auto px-5 sm:px-8 py-3.5 bg-slate-900 hover:bg-slate-950 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
             >
               <Building2 className="w-5 h-5" /> Daftar Dapur (SPPG) Baru
             </button>
             <button onClick={() => {
               const el = document.getElementById('transparansi-anggaran');
               el?.scrollIntoView({ behavior: 'smooth' });
-            }} className="px-8 py-3.5 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+            }} className="w-full sm:w-auto px-5 sm:px-8 py-3.5 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
               <Search className="w-5 h-5" /> Transparansi Anggaran
             </button>
           </div>
@@ -711,7 +711,7 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
           })}
         </div>
         <div className="mt-12 text-center text-sm text-slate-400 font-bold tracking-widest uppercase">
-          &copy; 2026 KAWAL MBG &bull; BADAN GIZI NASIONAL RI
+          &copy; 2026 KAWAL MBG .OgiTech
         </div>
       </div>
 
