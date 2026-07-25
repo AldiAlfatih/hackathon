@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Menu } from 'lucide-react';
 import Sidebar from './Sidebar';
 import TopNavbar from './TopNavbar';
 import LandingPage from './LandingPage';
@@ -183,45 +184,75 @@ export default function KawalApp() {
     );
   }
 
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
   // Dashboard Layout with Sidebar
   return (
-    <div className="min-h-screen flex bg-[var(--color-bg-base)] overflow-hidden">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[var(--color-bg-base)] overflow-hidden">
       <Sidebar
         activeView={activeView}
         setActiveView={handleSetActiveView}
         activeSubView={activeSubView}
         setActiveSubView={setActiveSubView}
         loggedInVendor={loggedInVendor}
+        mobileOpen={mobileSidebarOpen}
+        setMobileOpen={setMobileSidebarOpen}
       />
-      <main className="flex-1 min-w-0 h-screen overflow-y-auto">
-        {activeView === 'sppg' && (
-          <SppgPortal 
-            activeSubView={activeSubView as SppgSubView} 
-            setActiveSubView={setActiveSubView} 
-            loggedInVendor={loggedInVendor}
-            updateVendorDocuments={updateVendorDocuments}
-          />
-        )}
-        {activeView === 'sekolah' && (
-          <SchoolPortal 
-            activeSubView={activeSubView as SekolahSubView} 
-            setActiveSubView={setActiveSubView} 
-            complaints={globalComplaints.filter(c => c.sekolah === 'SDN 1 Parepare')}
-            updateComplaintStatus={updateComplaintStatus}
-            addComplaint={addComplaint}
-          />
-        )}
-        {activeView === 'command' && (
-          <CommandCenter 
-            activeSubView={activeSubView as BgnSubView} 
-            setActiveSubView={setActiveSubView}
-            complaints={globalComplaints}
-            updateComplaintStatus={updateComplaintStatus}
-            vendors={vendors}
-            setVendors={setVendors}
-          />
-        )}
-      </main>
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        {/* Mobile Top Header */}
+        <div className="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0 z-30 shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <button 
+              onClick={() => setMobileSidebarOpen(true)}
+              className="p-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="font-heading font-black text-slate-800 text-sm tracking-tight flex items-center gap-1.5">
+              <span>KAWAL-MBG</span>
+              <span className="text-[9px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-mono uppercase">
+                {activeView === 'command' ? 'BGN' : activeView === 'sppg' ? 'SPPG' : 'SEKOLAH'}
+              </span>
+            </div>
+          </div>
+          <button 
+            onClick={() => handleSetActiveView('landing')} 
+            className="text-xs font-bold text-slate-600 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-2.5 py-1 rounded-lg transition-colors"
+          >
+            Home
+          </button>
+        </div>
+
+        <main className="flex-1 min-w-0 overflow-y-auto p-4 md:p-6">
+          {activeView === 'sppg' && (
+            <SppgPortal 
+              activeSubView={activeSubView as SppgSubView} 
+              setActiveSubView={setActiveSubView} 
+              loggedInVendor={loggedInVendor}
+              updateVendorDocuments={updateVendorDocuments}
+            />
+          )}
+          {activeView === 'sekolah' && (
+            <SchoolPortal 
+              activeSubView={activeSubView as SekolahSubView} 
+              setActiveSubView={setActiveSubView} 
+              complaints={globalComplaints.filter(c => c.sekolah === 'SDN 1 Parepare')}
+              updateComplaintStatus={updateComplaintStatus}
+              addComplaint={addComplaint}
+            />
+          )}
+          {activeView === 'command' && (
+            <CommandCenter 
+              activeSubView={activeSubView as BgnSubView} 
+              setActiveSubView={setActiveSubView}
+              complaints={globalComplaints}
+              updateComplaintStatus={updateComplaintStatus}
+              vendors={vendors}
+              setVendors={setVendors}
+            />
+          )}
+        </main>
+      </div>
     </div>
   );
 }

@@ -356,7 +356,7 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
       </div>
 
       {/* KPI Cards Grid - 8 Key Indicators */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             label: 'Jumlah Total SPPG',
@@ -1243,7 +1243,7 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
               <div>
                 <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider flex items-center gap-1 mb-2"><Shield className="w-3 h-3"/> Analisis Anomali Keuangan</div>
