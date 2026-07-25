@@ -6,7 +6,7 @@ import {
   Filter, Search, ChevronDown, ChevronUp, RefreshCw, Bell,
   MapPin, BarChart3, Activity, Shield, ChevronRight, X,
   Package, DollarSign, Clock, FileText, Database, Server,
-  Lock, Siren, Microscope, Check, XCircle, AlertOctagon, ImageIcon, User, Building2, Ghost, BrainCircuit, Banknote, Send
+  Lock, Siren, Microscope, Check, XCircle, AlertOctagon, ImageIcon, User, Building2, Ghost, Banknote, Send
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -919,7 +919,7 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                         {/* Rekomendasi Tindak Lanjut */}
                         <td className="py-4 px-4 max-w-xs text-[11px] text-blue-900 bg-blue-50/50 p-2 rounded-lg border border-blue-100 font-medium">
                           <div className="flex items-start gap-1">
-                            <BrainCircuit className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                            <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
                             <span>{rekomendasi}</span>
                           </div>
                         </td>
@@ -1246,7 +1246,7 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
           <div className="grid grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
               <div>
-                <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider flex items-center gap-1 mb-2"><Shield className="w-3 h-3"/> Trust Finance AI</div>
+                <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider flex items-center gap-1 mb-2"><Shield className="w-3 h-3"/> Analisis Anomali Keuangan</div>
                 <div className="text-xl font-mono font-bold text-slate-900">2 Vendor</div>
               </div>
               <div className="text-[10px] text-slate-500 font-medium leading-tight mt-2">Terindikasi anomali <b className="text-red-500">mark-up</b> harga bahan baku harian.</div>
@@ -1438,12 +1438,12 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                       color: 'emerald'
                     },
                     {
-                      pengguna: 'Sistem OCR AI (Automated)',
+                      pengguna: 'Sistem OCR (Automated Extraction)',
                       aktivitas: 'Audit Dokumen Legalitas SLHS',
                       waktu: '12 Ags 2026, 07:30 WITA',
                       perubahanData: 'Status Dokumen SLHS Dapur',
                       sebelumSesudah: 'Pending ➔ Valid (s.d 2031)',
-                      hasilVerifikasi: 'Lolos Audit AI (99.1% Acc)',
+                      hasilVerifikasi: 'Lolos Verifikasi OCR (99.1%)',
                       tindakLanjut: 'Sertifikat Dapur Terbit',
                       color: 'blue'
                     },
@@ -1558,10 +1558,10 @@ export default function CommandCenter({ activeSubView, setActiveSubView, complai
                           <span className={`block w-max px-2 py-0.5 rounded border text-[10px] font-bold uppercase tracking-wider ${r.severity==='High' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>{r.severity}</span>
                           <div className="flex gap-1 mt-1.5">
                             <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded text-[9px] font-bold uppercase flex items-center gap-1">
-                              <BrainCircuit className="w-2.5 h-2.5"/> {r.severity === 'High' ? 'Negatif' : 'Netral'}
+                              <AlertTriangle className="w-2.5 h-2.5"/> {r.severity === 'High' ? 'Negatif' : 'Netral'}
                             </span>
                             <span className="px-1.5 py-0.5 bg-purple-50 text-purple-700 border border-purple-200 rounded text-[9px] font-bold uppercase">
-                              NLP: {r.kategori.includes('Keterlambatan') ? 'Logistik' : 'Mutu'}
+                              Kategori: {r.kategori.includes('Keterlambatan') ? 'Logistik' : 'Mutu'}
                             </span>
                           </div>
                         </td>

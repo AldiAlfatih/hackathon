@@ -1,6 +1,6 @@
 'use client';
 
-import { Shield, ArrowRight, Zap, Building2, Server, Database, CheckCircle, AlertTriangle, Users, BookOpen, Utensils, X, Camera, Search, ImageIcon, MapPin, AlertOctagon, Clock, QrCode, ScanLine, BrainCircuit, ShieldCheck, FileText, Package, GraduationCap, MessageSquare, BarChart3, Send } from 'lucide-react';
+import { Shield, ArrowRight, Zap, Building2, Server, Database, CheckCircle, AlertTriangle, Users, BookOpen, Utensils, X, Camera, Search, ImageIcon, MapPin, AlertOctagon, Clock, QrCode, ScanLine, ShieldCheck, FileText, Package, GraduationCap, MessageSquare, BarChart3, Send } from 'lucide-react';
 import type { ActiveView, GlobalComplaint } from './KawalApp';
 import { useState, useEffect, useRef } from 'react';
 import { vendors } from '@/lib/mockData';
@@ -17,7 +17,7 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
     { label: 'Total SPPG Aktif', value: '4.821', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50' },
     { label: 'Sekolah Terlayani', value: '12.450', icon: BookOpen, color: 'text-indigo-600', bg: 'bg-indigo-50' },
     { label: 'Porsi Tersalurkan', value: '8.2M+', icon: Utensils, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { label: 'Kepatuhan Gizi (AI)', value: '94.2%', icon: CheckCircle, color: 'text-teal-600', bg: 'bg-teal-50' },
+    { label: 'Kepatuhan Gizi', value: '94.2%', icon: CheckCircle, color: 'text-teal-600', bg: 'bg-teal-50' },
     { label: 'Keluhan Diselesaikan', value: '1.205', icon: Shield, color: 'text-sky-600', bg: 'bg-sky-50' },
   ];
 
@@ -141,17 +141,17 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
         
         <div className="max-w-5xl mx-auto relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-xs sm:text-sm font-bold text-blue-700 mb-8 shadow-sm">
-            <BrainCircuit className="w-4 h-4 text-blue-600 shrink-0" />
-            PLATFORM DIGITAL PENGAWASAN & KEPATUHAN SPPG (AI & MANAJEMEN RISIKO)
+            <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
+            PLATFORM DIGITAL PENGAWASAN &amp; KEPATUHAN SPPG (BGN &amp; REGULATOR)
           </div>
           
           <h1 className="text-3xl sm:text-4xl md:text-6xl font-heading font-extrabold text-slate-900 mb-6 leading-tight tracking-tight">
-            Platform Digital Pengawasan & Kepatuhan SPPG<br/>
-            <span className="text-blue-600">Berbasis AI dan Manajemen Risiko</span>
+            Platform Digital Pengawasan &amp; Kepatuhan SPPG<br/>
+            <span className="text-blue-600">Terintegrasi &amp; Berbasis Manajemen Risiko</span>
           </h1>
           
           <p className="text-slate-600 text-base md:text-xl leading-relaxed max-w-3xl mx-auto mb-10 font-medium">
-            Sistem pengawasan terpadu program Makan Bergizi Gratis (MBG) yang mengintegrasikan verifikasi perizinan legalitas, audit AI kepatuhan SOP dapur & gizi, pengawasan alokasi anggaran, serta verifikasi pengiriman hingga aduan sekolah.
+            Sistem pengawasan terpadu program Makan Bergizi Gratis (MBG) yang mengintegrasikan verifikasi perizinan legalitas, inspeksi kepatuhan SOP dapur &amp; gizi, pengawasan alokasi anggaran, serta verifikasi pengiriman hingga aduan sekolah.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -208,7 +208,7 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
             },
             {
               title: 'Verifikasi Perizinan',
-              desc: 'Ekstraksi & validasi dokumen legalitas otomatis (Akta, NIB, NPWP) berbasis OCR AI.',
+              desc: 'Ekstraksi & validasi dokumen legalitas otomatis (Akta, NIB, NPWP) berbasis OCR Document Extraction.',
               icon: FileText,
               color: 'text-indigo-600',
               bg: 'bg-indigo-50',
@@ -216,7 +216,7 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
             },
             {
               title: 'Kepatuhan SOP Dapur',
-              desc: 'Live Guard Monitoring AI audit visual APD staff & standar kebersihan area dapur harian.',
+              desc: 'Inspeksi visual APD staf & standar kebersihan area dapur harian (Photo Compliance Check).',
               icon: Camera,
               color: 'text-sky-600',
               bg: 'bg-sky-50',
@@ -224,7 +224,7 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
             },
             {
               title: 'Kepatuhan Gizi/Menu',
-              desc: 'Validasi AI 5 komponen gizi harian (karbohidrat, protein, sayur, buah, susu) standar BGN.',
+              desc: 'Validasi 5 komponen gizi harian (karbohidrat, protein, sayur, buah, susu) standar BGN.',
               icon: Utensils,
               color: 'text-emerald-600',
               bg: 'bg-emerald-50',
@@ -526,7 +526,7 @@ export default function LandingPage({ setActiveView, addComplaint, registerVendo
                 </div>
                 <div className="flex justify-between items-center bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-200 text-xs text-emerald-800">
                   <span className="font-bold flex items-center gap-1.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-600" /> Kepatuhan Standar Gizi AI:
+                    <CheckCircle className="w-4 h-4 text-emerald-600" /> Kepatuhan Standar Gizi (BGN):
                   </span>
                   <span className="font-mono font-bold text-emerald-700">480 Kcal &bull; 22g Protein (100% AKG)</span>
                 </div>

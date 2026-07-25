@@ -6,7 +6,7 @@ import {
   Info, Calendar, CheckCircle2, AlertCircle, Loader2, 
   Clock, CheckSquare, XCircle, Home, Utensils, BarChart3,
   TrendingUp, TrendingDown, MapPin, Lock, Navigation,
-  BrainCircuit, ShieldCheck, Link, GraduationCap, Plus, RefreshCw, X, QrCode
+  ShieldCheck, Link, GraduationCap, Plus, RefreshCw, X, QrCode
 } from 'lucide-react';
 import type { SppgSubView, ActiveSubView } from './KawalApp';
 
@@ -562,7 +562,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
               <div className="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
                 <div>
                   <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <Info className="w-4 h-4 text-blue-600" /> Syarat Verifikasi Penerbitan SPPG (AI OCR)
+                    <Info className="w-4 h-4 text-blue-600" /> Syarat Verifikasi Penerbitan SPPG (OCR Document Extraction)
                   </h2>
                   <p className="text-xs text-slate-500 mt-1">Lengkapi & perbarui dokumen persyaratan wajib di bawah untuk memproses verifikasi penerbitan izin SPPG Anda.</p>
                 </div>
@@ -654,7 +654,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                 </div>
                 <div className="space-y-2">
                   {[
-                    { waktu: '12 Ags 2026 - 14:20 WITA', ket: 'SLHS & NIB diaudit ulang oleh sistem AI OCR BGN — Hasil: Valid (100%)', status: 'Disahkan' },
+                    { waktu: '12 Ags 2026 - 14:20 WITA', ket: 'SLHS & NIB diaudit ulang oleh sistem OCR BGN — Hasil: Valid (100%)', status: 'Disahkan' },
                     { waktu: '10 Jul 2026 - 09:15 WITA', ket: 'Verifikasi Fisik Dapur oleh Tim Satgas BGN Parepare — Hasil: Lolos Verifikasi Lapangan', status: 'Selesai' },
                     { waktu: '15 Jan 2026 - 11:00 WITA', ket: 'Pendaftaran Awal Berkas Kemitraan SPPG Parepare', status: 'Terverifikasi' },
                   ].map((log, i) => (
@@ -669,18 +669,18 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                 </div>
               </div>
 
-              {/* Processing or AI OCR Result indicator under the table */}
+              {/* Processing or OCR Result indicator under the table */}
               {ocrState === 'processing' && (
                 <div className="p-6 border-t border-slate-100 bg-slate-50 flex flex-col items-center justify-center gap-3">
                   <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">Mengekstrak Data OCR & Memperbarui Berkas...</div>
+                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">Mengekstrak Data OCR &amp; Memperbarui Berkas...</div>
                 </div>
               )}
 
               {ocrState === 'done' && ocrResult && (
                 <div className="p-6 border-t border-slate-100 bg-emerald-50/70 animate-in fade-in duration-300">
                   <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" /> Dokumen Berhasil Diperbarui & Diverifikasi (AI OCR)
+                    <CheckCircle2 className="w-4 h-4" /> Dokumen Berhasil Diperbarui &amp; Diverifikasi (OCR Document Extraction)
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl border border-emerald-200 shadow-sm">
                     {[
@@ -696,11 +696,11 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                     ))}
                   </div>
 
-                  {/* AI Metrics Additions */}
+                  {/* Verification Metrics Additions */}
                   <div className="mt-4 pt-4 border-t border-emerald-200/50">
                     <div className="flex items-center gap-2 mb-3">
-                      <BrainCircuit className="w-4 h-4 text-emerald-600" />
-                      <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Hasil Analisis Smart Licensing AI</span>
+                      <FileText className="w-4 h-4 text-emerald-600" />
+                      <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Hasil Analisis Document Verification</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div className="bg-white/80 p-3 rounded-lg border border-emerald-100 shadow-sm">
@@ -714,8 +714,8 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                         <div className="text-[10px] text-emerald-600 font-bold uppercase mb-1 flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" /> Status Keaslian
                         </div>
-                        <div className="text-xs font-bold text-emerald-700">Valid & Terverifikasi</div>
-                        <div className="text-[9px] text-slate-500 mt-1">Sesuai dengan database master OSS & BGN.</div>
+                        <div className="text-xs font-bold text-emerald-700">Valid &amp; Terverifikasi</div>
+                        <div className="text-[9px] text-slate-500 mt-1">Sesuai dengan database master OSS &amp; BGN.</div>
                       </div>
                       <div className="bg-white/80 p-3 rounded-lg border border-emerald-100 shadow-sm">
                         <div className="text-[10px] text-emerald-600 font-bold uppercase mb-1 flex items-center gap-1">
@@ -728,7 +728,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                     <div className="mt-3 bg-white/80 p-3 rounded-lg border border-emerald-100 flex items-start gap-2 text-xs">
                       <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                       <div>
-                        <div className="text-[10px] text-blue-800 font-bold uppercase mb-0.5">Catatan AI Cross-Reference</div>
+                        <div className="text-[10px] text-blue-800 font-bold uppercase mb-0.5">Catatan Verifikasi Dokumen</div>
                         <div className="text-slate-700 font-medium">Dokumen berhasil diperbarui dan disinkronisasi ke sistem BGN. Foto kesiapan bangunan terverifikasi memiliki kapasitas memadai untuk melayani target porsi harian.</div>
                       </div>
                     </div>
@@ -859,11 +859,11 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
               </div>
             </div>
 
-            {/* Upload & AI Result */}
+            {/* Upload & Nutrition Result */}
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col overflow-hidden">
               <div className="p-5 border-b border-slate-100 bg-slate-50">
-                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">2. Upload Foto & Analisis AI</h2>
-                <p className="text-xs text-slate-500 mt-1">AI memverifikasi <strong>Component Completeness</strong> (keberadaan tiap komponen).</p>
+                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">2. Upload Foto &amp; Nutrition Analysis</h2>
+                <p className="text-xs text-slate-500 mt-1">Sistem memverifikasi <strong>Component Completeness</strong> (keberadaan tiap komponen).</p>
               </div>
               <div className="p-6 flex-1 flex flex-col">
                 {nutritionState === 'idle' && (
@@ -883,7 +883,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                   <div className="flex-1 flex flex-col items-center justify-center gap-4 bg-slate-50 rounded-xl border border-slate-200 min-h-[200px]">
                     <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
                     <div className="text-sm font-bold text-slate-600 uppercase tracking-wider">
-                      {nutritionState === 'uploading' ? 'Mengunggah Foto...' : 'AI Mengidentifikasi Komponen...'}
+                      {nutritionState === 'uploading' ? 'Mengunggah Foto...' : 'Menganalisis Komponen Gizi...'}
                     </div>
                   </div>
                 )}
@@ -909,7 +909,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                       </span>
                     </div>
                     <div className="space-y-2">
-                      <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Hasil Deteksi AI:</div>
+                      <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Hasil Analisis Komponen Gizi:</div>
                       {menuSiklus === 'siklus1' ? (
                         <>
                           <div className="flex items-center gap-2 text-sm font-bold text-emerald-700 bg-emerald-50 px-3 py-2.5 rounded-lg border border-emerald-100">
@@ -1046,9 +1046,9 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div>
                     <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                      <Camera className="w-4 h-4 text-blue-600" /> Live Guard Monitoring (Hygiene AI)
+                      <Camera className="w-4 h-4 text-blue-600" /> Inspeksi Higiene Dapur (Photo Compliance Check)
                     </h2>
-                    <p className="text-xs text-slate-500 mt-1">Upload foto/video dapur operasional harian. AI akan memverifikasi APD dan standar kebersihan.</p>
+                    <p className="text-xs text-slate-500 mt-1">Upload foto/video dapur operasional harian. Sistem memverifikasi penggunaan APD dan standar kebersihan.</p>
                   </div>
                   <div className="flex flex-col gap-1 shrink-0">
                     <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Jam Upload Diizinkan</div>
@@ -1116,7 +1116,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                   <div className="flex-1 flex flex-col items-center justify-center gap-4 bg-slate-50 rounded-xl border border-slate-200 min-h-[200px]">
                     <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
                     <div className="text-sm font-bold text-slate-600 uppercase tracking-wider">
-                      {hygieneState === 'uploading' ? 'Mengunggah Dokumentasi...' : 'Computer Vision Menganalisis...'}
+                      {hygieneState === 'uploading' ? 'Mengunggah Dokumentasi...' : 'Menganalisis Kepatuhan Higiene...'}
                     </div>
                   </div>
                 )}
@@ -1124,7 +1124,7 @@ export default function SppgPortal({ activeSubView, setActiveSubView, loggedInVe
                   <div className="flex-1 flex flex-col gap-4">
                     <div className="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
                       <div>
-                        <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider mb-1">Skor Kepatuhan (AI)</div>
+                        <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider mb-1">Skor Kepatuhan Higiene</div>
                         <div className="text-3xl font-mono font-bold text-emerald-700">92%</div>
                       </div>
                       <span className="px-3 py-1 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg font-bold text-xs uppercase flex items-center gap-1">
