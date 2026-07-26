@@ -35,6 +35,7 @@ export interface GlobalComplaint {
 export default function KawalApp() {
   const [activeView, setActiveView] = useState<ActiveView>('landing');
   const [activeSubView, setActiveSubView] = useState<ActiveSubView>('overview');
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Global Vendors State
   const [vendors, setVendors] = useState<Vendor[]>(defaultVendors);
@@ -184,7 +185,7 @@ export default function KawalApp() {
     );
   }
 
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
 
   // Dashboard Layout with Sidebar
   return (
